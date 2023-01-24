@@ -79,24 +79,14 @@ NoPrintf::NoPrintf( const char* txt ) : m_str( txt?txt:"" ), m_args()
 
 void NoPrintf::init()  // single '$' sign at offset 0 for '$$'
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << " called" << std::endl;
-# endif
   m_args.reserve(10);
   m_args.clear();
   m_args.emplace(m_args.end(), std::move(std::string("$"))); // single '$' sign at offset 0 for '$$'
-
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << "args=" << m_args.size() << std::endl;
-# endif
 }
 
 
 void NoPrintf::clean()
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << " called" << std::endl;
-# endif
   init();
   m_str.clear();
 }
@@ -104,9 +94,6 @@ void NoPrintf::clean()
 
 NoPrintf& NoPrintf::append( const std::string& str )
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << "(" << str << ") called" << std::endl;
-# endif
   init(); // no arguments until end of append
   m_str += str;
   return *this;
@@ -115,9 +102,6 @@ NoPrintf& NoPrintf::append( const std::string& str )
 
 NoPrintf& NoPrintf::set( const std::string& str )
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << "(" << str << ") called" << std::endl;
-# endif
   init(); // no arguments until end of set
   m_str = str;
   return *this;
@@ -126,20 +110,7 @@ NoPrintf& NoPrintf::set( const std::string& str )
 
 const std::string& NoPrintf::get_ref()
 {
-# if defined(DEBUG) && 0 // only for testing
-  std::cout << "--- " << __FUNCTION__ << " called" << std::endl;
-# endif
-
   size_t argnum = m_args.size();
-
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << "args=" << argnum << ": ";
-  for( auto a : m_args )
-  {
-    std::cout << a << ", ";
-  }
-  std::cout << "\n";
-# endif
 
   for( size_t i=0 ; i<10 && i<argnum ; i++ )
   {
@@ -150,30 +121,12 @@ const std::string& NoPrintf::get_ref()
 
     do
     {
-#     if defined(DEBUG) && 0  // only for testing
-      std::cout << "  search " << placehold << " in '" << m_str << "' ... ";
-#     endif
-
       size_t ph_len = strlen(placehold);
       offs = m_str.find( placehold, offs );
       if( std::string::npos != offs )
       {
-#       if defined(DEBUG) && 0  // only for testing
-        std::cout << "  found " << placehold << ", replace with '" << m_args[ i ] << "'" << std::endl;
-#       endif
-
         m_str.replace( offs, ph_len, m_args[ i ] );
-
-#       if defined(DEBUG) && 0  // only for testing
-        std::cout << "  new: '" << m_str << "'" << std::endl;
-#       endif
-        offs += ph_len;
-      }
-      else
-      {
-#       if defined(DEBUG) && 0  // only for testing
-        std::cout << "  nothing." << std::endl;
-#       endif
+        offs += ph_len; // or better += m_args[ i ].length() to skip over the newly inserted part?
       }
     } while( std::string::npos != offs );
   }
@@ -182,27 +135,18 @@ const std::string& NoPrintf::get_ref()
 }
 
 
+// do we need the distinction between ref and copy? in C++14 we have RVO, in 17 it is mandatory ... depends on what we have at ESP/PlatformIO ...
 std::string NoPrintf::get()
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << " called" << std::endl;
-# endif
   std::string res = this->get_ref();
   return res;
 }
 
 
-
+// give an functor as argument with kind of puts() as default?
 NoPrintf& NoPrintf::put( /*optionally: give function pointer?*/ )
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << " called" << std::endl;
-# endif
   puts( this->get_ref().c_str() );
-
-# if defined(DEBUG) && 0  // only for testing
-  puts( "=========" );
-# endif
   return *this;
 }
 
@@ -210,6 +154,7 @@ NoPrintf& NoPrintf::put( /*optionally: give function pointer?*/ )
 NoPrintf& NoPrintf::operator +=(const NoPrintf& rhs)
 {
   m_str += rhs.m_str;
+  // m_args will not be joined here, because args shall only be give right befor put().
   return *this;
 }
 
@@ -231,11 +176,6 @@ NoPrintf& NoPrintf::operator +=(const char* rhs)
 
 NoPrintf& NoPrintf::arg(const std::string& str)
 {
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << __FUNCTION__ << "(" << str << ") called" << std::endl;
-  std::cout << "args=" << m_args.size() << std::endl;
-# endif
-
   //m_args.push_back(str);
   m_args.emplace(m_args.end(), std::move(str));
 
@@ -259,6 +199,7 @@ NoPrintf& NoPrintf::arg(const char* txt)
 }
 
 
+// a hopefully smaller and faster implementation compared with ltoa() and to_string()
 static std::string& collect_int( unsigned int uVal, std::string& buffer, bool Minus = false )
 {
   if( uVal==0 )
@@ -281,6 +222,7 @@ static std::string& collect_int( unsigned int uVal, std::string& buffer, bool Mi
 }
 
 
+// need to introduce template and template specification soon
 NoPrintf& NoPrintf::arg( unsigned long int uVal )
 {
   std::string collect;

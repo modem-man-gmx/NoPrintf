@@ -2,27 +2,44 @@
 
 #include "no_printf.hpp"
 
-using namespace std;
+using namespace std; // only for easy demo writing
 
 int main()
 {
-    NoPrintf S1("String 1");
+    NoPrintf S1("String 1"); // construct from char*
     S1.put(); // just say "String 1"
+    // can put twice
+    S1.put();
     S1.clean();
+    // can put again, but empty
+    S1.put();
 
-    S1="Stronk";
+    // can get reassigned
+    S1="Stronk"; // assign from char*
     S1.set("String"); // replace old value by "String"
     S1.append(" $$"); // append " $$" to "String"
-    S1.arg("2"); // ignored, because no $1 in S1 so far.
+    S1.arg("1"); // ignored, because no "$1" placeholder in S1 so far.
+    S1.put();
+    S1.append("=$1"); // append usage of arg 2, but that will gone reset in between
+    S1.put();
+    // now the arg 2 is alive
+    S1.arg("1"); // set again as arg 1 ($1) and we have "$1" placeholder in the meantime
     S1.put();
 
     string std_str("std_str");
-    NoPrintf S2(std_str);
+    NoPrintf S2(std_str); // construct from std::string
     S2 += " + " + std_str;
     S2.append( ";" );
     S2.put();
 
-    S1 = S2;
+    NoPrintf S3( S1 ); // copy construct
+    S3.put(); // must have inherited the argument, too
+    S3.append(", $$2=$2"); // append usage of arg 2, but that will gone reset in between,
+    // so we need to assign all arguments again.
+    // this is good, because the other way would make it impossible to manage which number of arg is what
+    S3.arg(1L).arg(3L).put(); // can replace the argument, too
+
+    S1 = S2; // copy assign
     S1.put();
 
     NoPrintf Arguments1;
