@@ -1,6 +1,9 @@
 # build SampleDemo
 
-.PHONY: all exe lib remake clean info
+.PHONY: all exe lib remake clean check distcheck info
+
+# 1st target is the target we build with no args, so i want to have 'all' here.
+all: lib exe
 
 MyEXE     := np_sample1.exe
 MyEXE_SRC := src/no_main.cpp
@@ -14,12 +17,6 @@ LIB_NAMES ?= libnoprint.a
 ##############################################################
 MyEXE_OBJS := $(MyEXE_SRC:.cpp=.o)
 MyLIB_OBJS := $(MyLIB_SRC:.cpp=.o)
-
-all: lib exe
-
-exe: $(MyEXE)
-
-lib: $(MyLIB)
 
 $(MyLIB): $(MyLIB_OBJS)
 	@echo "linking $^ to $@   by invoking:"
@@ -46,6 +43,10 @@ $(MyEXE): $(MyEXE_OBJS) $(MyLIB)
 #	@echo "compiling and linking $< to $@   by invoking:"
 	$(CXX) -o $@ $(INCSEARCH) -c $<
 
+exe: $(MyEXE)
+
+lib: $(MyLIB)
+
 remake: clean all
 
 clean:
@@ -54,3 +55,10 @@ clean:
 info:
 	@echo "compiling $(MyEXE_SRC) (and linking against $(LIB_NAMES))"
 	@echo "to get result: $(MyEXE)"
+
+check:
+	chmod +x $(MyEXE)
+	./$(MyEXE)
+
+distcheck:
+	@echo "nothing implemented here"
