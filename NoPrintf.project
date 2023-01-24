@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="NoPrintf" Version="11000" InternalType="Console">
+  <VirtualDirectory Name="doc">
+    <File Name="doc/feature_requests.txt"/>
+  </VirtualDirectory>
   <VirtualDirectory Name="todo">
     <File Name="todo/ToDo.txt"/>
   </VirtualDirectory>
