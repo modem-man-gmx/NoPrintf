@@ -1,0 +1,28 @@
+Plans:
+
+Code Improvements:
+  // todo: check, if C++14 does support nested CTors and if Platform.IO ESP supports C++14
+  // otherwise kind of default init possible?
+
+  // std::string NoPrintf::get() vs.
+  // std::string NoPrintf::get_ref()
+  // do we need the distinction between ref and copy? in C++14 we have RVO, in 17 it is mandatory ... depends on what we have at ESP/PlatformIO ...
+
+  // On: put()
+  // give an functor as argument, with kind of puts() as default?
+
+  // On: static std::string& collect_int( unsigned int uVal, std::string& buffer, bool Minus = false )
+  // a hopefully smaller and faster implementation compared with ltoa() and to_string()
+  // #ifdef switchable implementation via ltoa() and to_string()
+  // do benchmarks on size and speed basically and on ESP
+
+  // On: NoPrintf& NoPrintf::arg( unsigned long int uVal )
+  // need to introduce template and template specification soon
+
+
+Structure:
+  // integrate Either GoogleTest (gTest) or UnitTest++ instead of handcrafted main() Demo code
+
+Implement Methods:
+  NoPrintf& trim();
+  NoPrintf& cut(siz_t max);
