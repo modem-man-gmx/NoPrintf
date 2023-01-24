@@ -110,25 +110,37 @@ NoPrintf& NoPrintf::set( const std::string& str )
 
 const std::string& NoPrintf::get_ref()
 {
-  size_t argnum = m_args.size();
-
-  for( size_t i=0 ; i<10 && i<argnum ; i++ )
+  size_t offs = m_str.find( '$' );
+  while( std::string::npos != offs && m_str.length() > offs )
   {
-    char placehold[3] = "$x";
-    placehold[1] = '0' + i;
-    if(0==i) placehold[1] = '$'; // for replacing $$ by single $
-    size_t offs=0;
-
-    do
+    char placehold_chr = m_str[ offs+1 ];
+    size_t placehold_idx = placehold_chr - '0';
+    switch( placehold_chr )
     {
-      size_t ph_len = strlen(placehold);
-      offs = m_str.find( placehold, offs );
-      if( std::string::npos != offs )
+      case '$' :
       {
-        m_str.replace( offs, ph_len, m_args[ i ] );
-        offs += ph_len; // or better += m_args[ i ].length() to skip over the newly inserted part?
-      }
-    } while( std::string::npos != offs );
+        m_str.erase( offs+1, 1 );
+        offs++;
+      }; break;
+      case '1' : // fallthrough
+      case '2' : // fallthrough
+      case '3' : // fallthrough
+      case '4' : // fallthrough
+      case '5' : // fallthrough
+      case '6' : // fallthrough
+      case '7' : // fallthrough
+      case '8' : // fallthrough
+      case '9' :
+      {
+        m_str.replace( offs, 2, m_args[ placehold_idx ] );
+        offs += m_args[ placehold_idx ].length();
+      }; break;
+      default :
+      {
+        offs++;
+      }; break;
+    }
+    offs = m_str.find( '$', offs ); // find next $
   }
 
   return m_str;
