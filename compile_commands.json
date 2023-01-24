@@ -1,0 +1,13 @@
+[{
+  "file": "D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.hpp",
+  "directory": "D:\\proj\\proj.github\\NoPrintf",
+  "command": "C:/c/msys64/mingw64/bin/g++.exe -c D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.hpp -o D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.hpp.o -target x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\backward -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include -IC:\\c\\msys64\\mingw64\\include -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include-fixed -I/c/c/msys64/mingw64/include -DDEBUG -I.  -Wfatal-errors  -pg  -g  -pedantic  -W  -std=c++14"
+ }, {
+  "file": "D:\\proj\\proj.github\\NoPrintf\\src\\no_main.cpp",
+  "directory": "D:\\proj\\proj.github\\NoPrintf",
+  "command": "C:/c/msys64/mingw64/bin/g++.exe -c D:\\proj\\proj.github\\NoPrintf\\src\\no_main.cpp -o D:\\proj\\proj.github\\NoPrintf\\src\\no_main.cpp.o -target x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\backward -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include -IC:\\c\\msys64\\mingw64\\include -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include-fixed -I/c/c/msys64/mingw64/include -DDEBUG -I.  -Wfatal-errors  -pg  -g  -pedantic  -W  -std=c++14"
+ }, {
+  "file": "D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.cpp",
+  "directory": "D:\\proj\\proj.github\\NoPrintf",
+  "command": "C:/c/msys64/mingw64/bin/g++.exe -c D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.cpp -o D:\\proj\\proj.github\\NoPrintf\\src\\no_printf.cpp.o -target x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\x86_64-w64-mingw32 -IC:\\c\\msys64\\mingw64\\include\\c++\\12.2.0\\backward -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include -IC:\\c\\msys64\\mingw64\\include -IC:\\c\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\12.2.0\\include-fixed -I/c/c/msys64/mingw64/include -DDEBUG -I.  -Wfatal-errors  -pg  -g  -pedantic  -W  -std=c++14"
+ }]
