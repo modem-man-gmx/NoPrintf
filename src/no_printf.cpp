@@ -109,18 +109,21 @@ NoPrintf& NoPrintf::set( const std::string& str )
 }
 
 
-const std::string& NoPrintf::get_ref()
+// minimum compiler: gnu++11 or C++14, to have RVO (return value optimisation)
+std::string NoPrintf::get() const
 {
-  size_t offs = m_str.find( '$' );
-  while( std::string::npos != offs && m_str.length() > offs )
+  std::string work(m_str); // ToDo: do not work on a string, just use a growing list of iterators pointing to the elements, then spool out the list-refrences?
+
+  size_t offs = work.find( '$' );
+  while( std::string::npos != offs && work.length() > offs )
   {
-    char placehold_chr = m_str[ offs+1 ];
+    char placehold_chr = work[ offs+1 ];
     size_t placehold_idx = placehold_chr - '0';
     switch( placehold_chr )
     {
       case '$' :
       {
-        m_str.erase( offs+1, 1 );
+        work.erase( offs+1, 1 );
         offs++;
       }; break;
       case '1' : // fallthrough
@@ -133,7 +136,7 @@ const std::string& NoPrintf::get_ref()
       case '8' : // fallthrough
       case '9' :
       {
-        m_str.replace( offs, 2, m_args[ placehold_idx ] );
+        work.replace( offs, 2, m_args[ placehold_idx ] );
         offs += m_args[ placehold_idx ].length();
       }; break;
       default :
@@ -141,26 +144,24 @@ const std::string& NoPrintf::get_ref()
         offs++;
       }; break;
     }
-    offs = m_str.find( '$', offs ); // find next $
+    offs = work.find( '$', offs ); // find next $
   }
 
-  return m_str;
-}
-
-
-// do we need the distinction between ref and copy? in C++14 we have RVO, in 17 it is mandatory ... depends on what we have at ESP/PlatformIO ...
-std::string NoPrintf::get()
-{
-  std::string res = this->get_ref();
-  return res;
+  return work;
 }
 
 
 // give an functor as argument with kind of puts() as default?
 NoPrintf& NoPrintf::put( /*optionally: give function pointer?*/ )
 {
-  puts( this->get_ref().c_str() );
+  puts( this->get().c_str() );
   return *this;
+}
+
+
+std::string NoPrintf::operator=(const NoPrintf& lhs) const
+{
+  return lhs.get();
 }
 
 

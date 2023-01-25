@@ -29,15 +29,14 @@ public: // further public methods
   NoPrintf& set( const std::string& str );
   NoPrintf& append( const std::string& str );
   NoPrintf& put();
-  const std::string& get_ref();
-  std::string get();
+  std::string get() const;
 
   NoPrintf& arg( const std::string& str );
   NoPrintf& arg( const char* txt );
   NoPrintf& arg( unsigned long int uVal );
   NoPrintf& arg( signed long int iVal );
 
-
+  std::string operator=( const NoPrintf& lhs ) const;
   NoPrintf& operator+=( const NoPrintf& rhs );
   NoPrintf& operator+=( const std::string& rhs );
   NoPrintf& operator+=( const char* rhs );
