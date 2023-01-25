@@ -25,7 +25,7 @@ Code Improvements:
 Structure:
   // integrate Either GoogleTest (gTest) or UnitTest++ instead of handcrafted main() Demo code
   // some crowds in github seem to prefer "http://www.throwtheswitch.org/unity"
-  // I'll start with https://github.com/zhangzheheng12345/Lightest
+  // Google Testr is out, because of requiring C++14 in the meantime.
 
 Implement Methods:
   NoPrintf& trim();
@@ -37,3 +37,7 @@ Denied:
 
 Done:
   // SEEN, that C++11 does support Delegating Constructors, made it
+
+  // integrate either GoogleTest ... 
+  // I started with https://github.com/zhangzheheng12345/Lightest
+  
