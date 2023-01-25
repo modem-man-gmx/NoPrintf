@@ -1,5 +1,8 @@
 Plans:
 
+Structure:
+  // split src, inc, demo_src?
+
 Code Improvements:
   // todo: check, if C++14 does support nested CTors and if Platform.IO ESP supports C++14
   // otherwise kind of default init possible?
@@ -22,6 +25,7 @@ Code Improvements:
 
 Structure:
   // integrate Either GoogleTest (gTest) or UnitTest++ instead of handcrafted main() Demo code
+  // some crowds in github seem to prefer "http://www.throwtheswitch.org/unity"
 
 Implement Methods:
   NoPrintf& trim();
