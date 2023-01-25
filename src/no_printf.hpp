@@ -10,14 +10,15 @@ public:
   NoPrintf();
   ~NoPrintf() {};
 
-  NoPrintf( NoPrintf&& other );                 // move CTor
-  NoPrintf( NoPrintf const& other );            // copy CTor
-  NoPrintf& operator=( NoPrintf&& other );      // move assignment
-  NoPrintf& operator=( NoPrintf const& other ); // copy assignment
-
   NoPrintf( std::string&& str );       // string move/swap CTor
   NoPrintf( std::string const& str );  // string CTor
   NoPrintf( const char* txt );         // text pointer CTor
+
+  NoPrintf( NoPrintf&& other );                 // move CTor
+  NoPrintf( NoPrintf const& other );            // copy CTor
+
+  NoPrintf& operator=( NoPrintf&& other );      // move assignment
+  NoPrintf& operator=( NoPrintf const& other ); // copy assignment
 
 public: // further public methods
   void init();

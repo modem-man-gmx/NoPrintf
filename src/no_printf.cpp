@@ -9,14 +9,43 @@
 #include "no_printf.hpp"
 
 
-NoPrintf::NoPrintf( NoPrintf&& other )                 // move CTor
+NoPrintf::NoPrintf() : m_str(), m_args()
+{
+  init();
+}
+
+
+// string move/swap CTor
+NoPrintf::NoPrintf( std::string&& str ) : NoPrintf()
+{
+  std::swap(m_str,str);
+}
+
+
+// string assign/copy CTor
+NoPrintf::NoPrintf( std::string const& str ) : NoPrintf()
+{
+  m_str = str;
+}
+
+
+// plain char pointer CTor, using CTor Delegation with temporary string
+NoPrintf::NoPrintf( const char* txt ) : NoPrintf( std::string( txt?txt:"") )
+{
+}
+
+
+// move CTor, no CTor Delegation, because empty containers are well enough for MOVE
+NoPrintf::NoPrintf( NoPrintf&& other )
+  : m_str(), m_args()
 {
   std::swap(m_str,other.m_str);
   std::swap(m_args,other.m_args);
 }
 
 
-NoPrintf::NoPrintf( NoPrintf const& other )            // copy CTor
+// copy CTor, no CTor Delegation, because containers will inherit the content from other
+NoPrintf::NoPrintf( NoPrintf const& other )
 {
   m_str = other.m_str;
   m_args= other.m_args;
@@ -44,34 +73,6 @@ NoPrintf& NoPrintf::operator=( NoPrintf const& other ) // copy assignment
   return *this;
 }
 
-
-
-// todo: check, if C++14 does support nested CTors and if Platform.IO ESP supports C++14
-// otherwise kind of default init possible?
-NoPrintf::NoPrintf() : m_str(), m_args()
-{
-  init();
-}
-
-
-// string move/swap CTor
-NoPrintf::NoPrintf( std::string&& str )
-{
-  init();
-  std::swap(m_str,str);
-}
-
-
-NoPrintf::NoPrintf( std::string const& str ) : m_str( str ), m_args()
-{
-  init();
-}
-
-
-NoPrintf::NoPrintf( const char* txt ) : m_str( txt?txt:"" ), m_args()
-{
-  init();
-}
 
 
 // ----------- impl ---------------
