@@ -4,6 +4,40 @@
 #include "lightest/lightest.h"
 //#define __FILE__ "test.cpp"
 
+/*
+TEST(Two_Failures_1st)
+{
+  REQ( 1, ==, 2 );
+  REQ( 3, ==, 4 );
+}
+
+TEST(One_Failure_2nd)
+{
+  REQ( 5, ==, 5 );
+  REQ( 6, ==, 7 );
+}
+
+TEST(reports_failures_in_subs)
+{
+  SUB( good_sub )
+  {
+    REQ( 8, ==, 9 );
+  };
+
+  SUB( bad_sub )
+  {
+    REQ( 9, >, 8 );
+    REQ( 9, <, 8 );
+    REQ( 9, !=, 8 );
+  };
+
+  SUB( good_again_sub )
+  {
+    REQ( 8, ==, 9 );
+  };
+}
+*/
+
 CONFIG(Configurations) {
   for (; argn > 0; argn--, argc++)
   {
@@ -136,7 +170,7 @@ TEST(NoPrintf_SimpleString_Creations)
     NoPrintf Christian( BIBLE_OPENING_TMPL ); Christian.arg(First_Thing_A).arg(JWH);
     NoPrintf Heretics; Heretics.set( BIBLE_OPENING_TMPL ).arg(First_Thing_B).arg(ATHEIST);
     REQ(  Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
-    REQ(  Heretics.get(),  !=, std::string( BIBLE_OPENING_LINES ) );
+    REQ(  Heretics.get(),  ==, std::string( BIBLE_OPENING_LINES ) );
   };
 }
 
@@ -156,4 +190,8 @@ DATA(GetFailedTests)
     }
   ); // lambda-end
   std::cout << "-----------------------------" << std::endl;
+  if (lightest::toOutput) {
+    std::cout << "Now the overall report:" << std::endl;
+  }
+  return; // just for easy breakpoint setting while debugging failed tests.
 }

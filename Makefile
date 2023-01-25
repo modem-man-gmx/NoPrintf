@@ -1,25 +1,27 @@
 # build SampleDemo
 
-.PHONY: all exe lib remake clean check distcheck info
+.PHONY: all exe unittest lib remake clean check distcheck info
 
 # 1st target is the target we build with no args, so i want to have 'all' here.
 all: lib exe
 
-MyEXE     := np_sample1.exe
-MyEXE_SRC := demo1src/no_main.cpp
+MyDemoExe      := np_sample1.exe
+MyDemoExe_SRC  := demo1src/no_main.cpp
+MyUnitTExe     := test_runner_lt1.exe
+MyUnitTExe_SRC := test_lightest/test_runner_lt1.cpp
+MyLIB          := libnoprint.a
+MyLIB_SRC      := src/no_printf.cpp
 
-MyLIB     := libnoprint.a
-MyLIB_SRC := src/no_printf.cpp
-
-INC_PATHS ?= ./inc ./src
+INC_PATHS ?= ./inc ./src ./lib/Lightest/include
 LIB_PATHS ?= ./lib .
 LIB_NAMES ?= $(MyLIB) #libnoprint.a
 ##############################################################
-MyEXE_OBJS := $(MyEXE_SRC:.cpp=.o)
-MyLIB_OBJS := $(MyLIB_SRC:.cpp=.o)
+MyDemoExe_OBJS  := $(MyDemoExe_SRC:.cpp=.o)
+MyUnitTExe_OBJS := $(MyUnitTExe_SRC:.cpp=.o)
+MyLIB_OBJS      := $(MyLIB_SRC:.cpp=.o)
 
 $(MyLIB): $(MyLIB_OBJS)
-	@echo "linking $^ to $@   by invoking:"
+	@echo "now linking $^ to $@   by invoking:"
 	@echo "$(strip $(AR) rcv $(ARFLGS) $@ $?)"
 	$(AR) rcsv $(ARFLGS) $@ $?
 
@@ -33,9 +35,17 @@ LIBSEARCH      := $(foreach d, $(LIB_PATHS), -L$d)
 LIB_SHORTNAMES := $(LIB_NAMES:lib%=%)
 LIB_LINK       := $(foreach d, $(LIB_SHORTNAMES:.a=), -l$d)
 
-$(MyEXE): $(MyEXE_OBJS) $(MyLIB)
-	@echo "linking $^ (and $(strip $(LIB_LINK))) to $@   by invoking:"
+$(MyDemoExe): $(MyDemoExe_OBJS) $(MyLIB)
+	@echo "demo: linking $^ (and $(strip $(LIB_LINK))) to $@ by invoking:"
 #	@echo "$(strip $(CXX) $(CXXFLAGS) -o $@ $(LDFLAGS) $(LIBSEARCH) $^ $(LDLIBS))"
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) $(LIBSEARCH) $(LIB_LINK) -o $@
+
+
+$(MyUnitTExe): $(MyUnitTExe_OBJS) $(MyLIB)
+	@echo "unit: MyUnitTExe     =$(MyUnitTExe)"
+	@echo "unit: MyUnitTExe_OBJS=$(MyUnitTExe_OBJS)"
+	@echo "unit: MyLIB          =$(MyLIB)"
+	@echo "unit: linking $^ (and $(strip $(LIB_LINK))) to $@ by invoking:"
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) $(LIBSEARCH) $(LIB_LINK) -o $@
 
 
@@ -43,21 +53,25 @@ $(MyEXE): $(MyEXE_OBJS) $(MyLIB)
 #	@echo "compiling and linking $< to $@   by invoking:"
 	$(CXX) -o $@ $(INCSEARCH) -c $<
 
-exe: $(MyEXE)
+
+exe: $(MyDemoExe)
+
+unittest: $(MyUnitTExe)
 
 lib: $(MyLIB)
 
 remake: clean all
 
 clean:
-	rm -f $(MyEXE) $(MyEXE_OBJS) $(LIB_NAMES) $(MyLIB_OBJS)
+	rm -f $(MyDemoExe) $(MyDemoExe_OBJS) $(MyUnitTExe) $(MyUnitTExe_OBJS) $(MyLIB) $(MyLIB_OBJS)
 
 info:
-	@echo "compiling $(MyEXE_SRC) (and linking against $(LIB_NAMES))"
-	@echo "to get result: $(MyEXE)"
+	@echo "compiling $(MyDemoExe_SRC) (and linking against $(LIB_NAMES))"
+	@echo "to get result: $(MyDemoExe)"
 	@echo "known Makefile arguments are:"
 	@echo "all  		build all (lib+exe+...)"
-	@echo "exe   		build only the exe"
+	@echo "exe   		build only the Demo executable"
+	@echo "unittest 	build only the Unittest executable"
 	@echo "lib  		build only the lib"
 	@echo "remake   	clean + all"
 	@echo "clean    	clean up result + intermediate files"
@@ -65,9 +79,12 @@ info:
 	@echo "distcheck	run delivery tests"
 	@echo "info 		this one"
 
-check:
-	chmod +x $(MyEXE)
-	./$(MyEXE)
+check: clean unittest
+	chmod +x $(MyUnitTExe)
+	./$(MyUnitTExe)
+	@echo "returning=${?}"
 
-distcheck:
-	@echo "nothing implemented here"
+distcheck: exe
+	@echo "nothing useful implemented here, so we just see, if the Demo works"
+	chmod +x $(MyDemoExe)
+	./$(MyDemoExe)
