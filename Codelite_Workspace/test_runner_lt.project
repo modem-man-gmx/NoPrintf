@@ -8,6 +8,8 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="../src/no_printf.hpp"/>
+    <File Name="../src/no_printf.cpp"/>
     <File Name="../test_lightest/test_runner_lt1.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
