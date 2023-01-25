@@ -6,14 +6,14 @@
 all: lib exe
 
 MyEXE     := np_sample1.exe
-MyEXE_SRC := src/no_main.cpp
+MyEXE_SRC := demo1src/no_main.cpp
 
 MyLIB     := libnoprint.a
 MyLIB_SRC := src/no_printf.cpp
 
 INC_PATHS ?= ./inc ./src
 LIB_PATHS ?= ./lib .
-LIB_NAMES ?= libnoprint.a
+LIB_NAMES ?= $(MyLIB) #libnoprint.a
 ##############################################################
 MyEXE_OBJS := $(MyEXE_SRC:.cpp=.o)
 MyLIB_OBJS := $(MyLIB_SRC:.cpp=.o)
@@ -50,11 +50,20 @@ lib: $(MyLIB)
 remake: clean all
 
 clean:
-	rm -f $(MyEXE) $(MyEXE_OBJS) $(LIB_NAMES)
+	rm -f $(MyEXE) $(MyEXE_OBJS) $(LIB_NAMES) $(MyLIB_OBJS)
 
 info:
 	@echo "compiling $(MyEXE_SRC) (and linking against $(LIB_NAMES))"
 	@echo "to get result: $(MyEXE)"
+	@echo "known Makefile arguments are:"
+	@echo "all  		build all (lib+exe+...)"
+	@echo "exe   		build only the exe"
+	@echo "lib  		build only the lib"
+	@echo "remake   	clean + all"
+	@echo "clean    	clean up result + intermediate files"
+	@echo "check		run tests"
+	@echo "distcheck	run delivery tests"
+	@echo "info 		this one"
 
 check:
 	chmod +x $(MyEXE)

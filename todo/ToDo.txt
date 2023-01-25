@@ -4,12 +4,11 @@ Structure:
   // split src, inc, demo_src?
 
 Code Improvements:
-  // todo: check, if C++14 does support nested CTors and if Platform.IO ESP supports C++14
-  // otherwise kind of default init possible?
-
   // std::string NoPrintf::get() vs.
   // std::string NoPrintf::get_ref()
   // do we need the distinction between ref and copy? in C++14 we have RVO, in 17 it is mandatory ... depends on what we have at ESP/PlatformIO ...
+  // -> most PlatformIO project still stuck at gnu++11 (c++11 with gnu extension, which are required for some Espresif parts)
+  // -> the good news: gnu++11 does RVO.
 
   // On: put()
   // give an functor as argument, with kind of puts() as default?
@@ -26,7 +25,15 @@ Code Improvements:
 Structure:
   // integrate Either GoogleTest (gTest) or UnitTest++ instead of handcrafted main() Demo code
   // some crowds in github seem to prefer "http://www.throwtheswitch.org/unity"
+  // I'll start with https://github.com/zhangzheheng12345/Lightest
 
 Implement Methods:
   NoPrintf& trim();
   NoPrintf& cut(siz_t max);
+
+---
+
+Denied:
+
+Done:
+  // SEEN, that C++11 does support Delegating Constructors, made it
