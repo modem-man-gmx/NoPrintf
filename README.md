@@ -4,6 +4,9 @@
 - Select language from a table.
 - Robustness by test driven development and unit test integration in local runs and github actions.
 
+![actions/workflows/c-cpp.yml](../../actions/workflows/c-cpp.yml/badge.svg)
+
+
 ## Join me?
 Just fork this git repository, pick the "dev" branch and send pull requests of tested code.
 
@@ -34,8 +37,9 @@ and so on ...
 - verification of UTF8, mbcs or wstring while keeping gnu++11 compatibility (PlatformIO default)
 
 ## ToDo and Feature Requests
-[ToDo list](todo/ToDo.md)
-[Feature Requests](todo/feature_requests.md)
+This does not replace the Issue Tracker from github. Or ... indeed it recently does ;-)
+- [ToDo list](todo/ToDo.md)
+- [Feature Requests](todo/feature_requests.md)
 
 ## read more?
 [Whole Story](doc/README_STORY.md)
