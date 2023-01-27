@@ -51,7 +51,7 @@ $(MyUnitTExe): $(MyUnitTExe_OBJS) $(MyLIB)
 
 %.o: %.cpp
 #	@echo "compiling and linking $< to $@   by invoking:"
-	$(CXX) -o $@ $(INCSEARCH) -c $<
+	$(CXX) $(CXXFLAGS) -o $@ $(INCSEARCH) -c $<
 
 
 exe: $(MyDemoExe)
@@ -81,8 +81,7 @@ info:
 
 check: clean unittest
 	chmod +x $(MyUnitTExe)
-	./$(MyUnitTExe)
-	@echo "returning=${?}"
+	./$(MyUnitTExe) && echo "unit tests OK." || echo "UNIT TESTS FAILED!"
 
 distcheck: exe
 	@echo "nothing useful implemented here, so we just see, if the Demo works"
