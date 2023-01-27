@@ -12,7 +12,7 @@ MyUnitTExe_SRC := test_lightest/test_runner_lt1.cpp
 MyLIB          := libnoprint.a
 MyLIB_SRC      := src/no_printf.cpp
 
-INC_PATHS ?= ./inc ./src ./lib/Lightest/include
+INC_PATHS ?= ./inc ./src ./lib/lightest/include
 LIB_PATHS ?= ./lib .
 LIB_NAMES ?= $(MyLIB) #libnoprint.a
 ##############################################################
