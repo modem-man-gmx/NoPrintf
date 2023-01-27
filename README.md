@@ -1,36 +1,46 @@
 # NoPrintf
-NoPrintf - try to avoid printf without loosing formatted strings + without fiddling with &lt;&lt; operators
+![Logo](doc/no_printf_logo.png?raw=true)
+- NoPrintf - try to avoid printf without loosing formatted strings + without fiddling with &lt;&lt; operators.
+- Have engineers formatted units like mV, kWh auto selected from field size.
+- Select language from a table.
+- Robustness by test driven development and unit test integration in local runs and github actions.
 
-Story:
-Some 90's days me and my team were forced by our boss to stop using `printf()` and its sisters, because of type-unsafety and of course because of rare but annoying crashes in long running integration test. Today I understand this, but in the past we all also hated him for this. How could we get well-readable logging and all the cool stuff?
-C++ didn't reached `C++03` status, C not even `C99` and even our preprocessor did not learned some nasty tricks, as we didn't.
-So we created functions like
+![actions/workflows/c-cpp.yml](../../actions/workflows/c-cpp.yml/badge.svg)
+
+
+## Join me?
+Just fork this git repository, pick the "dev" branch and send pull requests of tested code.
+
+## Why?
+Inspiration came from 30 years bad experience with printf, good things seen from Qt and Boost.
+And last but not least from an i18n discussion on [Ahoy DTU Discord](https://discord.gg/WzhxEY62mB),
+where we ended up in simple i18n allows "no printf", because of grammar and argument order.
+
+Aside of this, I always wanted to have an "fixed format engineers formatting" for numbers, like
 ```
-void logwrite_and_Long(const char*, long);
-void logwrite_and_LongString(const char*, long, const char*);
-void logwrite_and_LongStringLong(const char*, long, const char*, long);
+1.345 mW * 100
+134.5 mW * 100
+13.45 W * 100
+1.345 kW * 100
+134.5 kW * 100
+13.45 MW
 ```
-and the like.
+and so on ...
 
-Years later, we learned some Qt and Boost ways to handle such things better. But Boost is always a too fast moving target, sometimes breaking compatibility (yes, indeed, it did it several times). Qt, since Qt6 ... different story.
+## Goals:
+- working for strings and const char
+- working for relevant integers
+- conditionally compile with float
+- benchmark for low copy mem footprint & speed
+- metric prefixes "fpnµm kMGTP" auto select the way, always having 1 to 3 digits in front of the dot, on grow or shrink: take next 10^3 prefix.
+- ESP8266 and ESP32 optimized
+- translation table for latin-1 codepage languages 1st.
+- verification of UTF8, mbcs or wstring while keeping gnu++11 compatibility (PlatformIO default)
 
-And on an ESP8266 or alike device it is never a good idea to start with big fat ugly libraries, right?
+## ToDo and Feature Requests
+This does not replace the Issue Tracker from github. Or ... indeed it recently does ;-)
+- [ToDo list](todo/ToDo.md)
+- [Feature Requests](todo/feature_requests.md)
 
-Then I had an interesting discussion with @lumapu about a simple and more or less efficient i18n implementation. We ended up with "no printf", because of grammar and argument order.
-Asinde of this, I always wanted to have an "engineers formatting" for numbers, like
-```
-P = 1.345 kWh
-/ 10^6
-= 1.345 mWh
-* 100
-= "134.5 Wh
-```
-So I remembered the "no printf" times, the Qt .arg() idea and just started to warm up my compiler.
-
-The compiler is almost all times g++, either on Debian, Raspbian or MSYS2/Win64, soon on Platform.IO for ESP8266.
-
-The IDE I am using is most times the impressive flexible Codelite (by Eran). It strongly remembers me to glory days with similar CodeWright IDE. But I'm also okay with any other IDE which wasn't made for Java and then seduced to laggy support C++. (Even geany is often a better choice).
-
-Long read! 
-Up to now, this is more or less a warm-up for me. Perhaps some people come along and like to use or improve this.
-Mid term goal is to have a robust, small, portable version which performs well on ESP and then to extend it by a simple 2D-array for translations.
+## read more?
+[Whole Story](doc/README_STORY.md)

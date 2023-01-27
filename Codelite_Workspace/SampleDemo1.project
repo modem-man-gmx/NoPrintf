@@ -9,10 +9,16 @@
     <File Name="../src/no_printf.hpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="doc">
-    <File Name="../doc/feature_requests.txt"/>
+    <File Name="../doc/README_STORY.md"/>
+    <File Name="../README.md"/>
+    <File Name="../Makefile"/>
+    <File Name="../LICENSE"/>
+    <File Name="../configure"/>
+    <File Name="../.gitignore"/>
   </VirtualDirectory>
   <VirtualDirectory Name="todo">
-    <File Name="../todo/ToDo.txt"/>
+    <File Name="../todo/ToDo.md"/>
+    <File Name="../todo/feature_requests.md"/>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
