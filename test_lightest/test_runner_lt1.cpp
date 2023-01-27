@@ -4,6 +4,14 @@
 #include "lightest/lightest.h"
 //#define __FILE__ "test.cpp"
 
+TEST(Just_Good)
+{
+  REQ( 1, ==, 1 );
+  REQ( 1, >, 0 );
+  REQ( 1, <, 2 );
+  REQ( 1, !=, 2 );
+}
+
 /*
 TEST(Two_Failures_1st)
 {
@@ -170,7 +178,7 @@ TEST(NoPrintf_SimpleString_Creations)
     NoPrintf Christian( BIBLE_OPENING_TMPL ); Christian.arg(First_Thing_A).arg(JWH);
     NoPrintf Heretics; Heretics.set( BIBLE_OPENING_TMPL ).arg(First_Thing_B).arg(ATHEIST);
     REQ(  Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
-    REQ(  Heretics.get(),  ==, std::string( BIBLE_OPENING_LINES ) );
+    REQ(  Heretics.get(),  !=, std::string( BIBLE_OPENING_LINES ) );
   };
 }
 
