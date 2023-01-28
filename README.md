@@ -6,7 +6,7 @@
 - Robustness by test driven development and unit test integration in local runs and github actions.
 
 ![actions/workflows/c-cpp.yml](../../actions/workflows/c-cpp.yml/badge.svg)
-
+![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## Join me?
 Just fork this git repository, pick the "dev" branch and send pull requests of tested code.
