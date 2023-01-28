@@ -1,50 +1,10 @@
 #include <string>
+#include <limits>
 #include "no_printf.hpp"
 
 #include "lightest/lightest.h"
 //#define __FILE__ "test.cpp"
 
-TEST(Just_Good)
-{
-  REQ( 1, ==, 1 );
-  REQ( 1, >, 0 );
-  REQ( 1, <, 2 );
-  REQ( 1, !=, 2 );
-}
-
-/*
-TEST(Two_Failures_1st)
-{
-  REQ( 1, ==, 2 );
-  REQ( 3, ==, 4 );
-}
-
-TEST(One_Failure_2nd)
-{
-  REQ( 5, ==, 5 );
-  REQ( 6, ==, 7 );
-}
-
-TEST(reports_failures_in_subs)
-{
-  SUB( good_sub )
-  {
-    REQ( 8, ==, 9 );
-  };
-
-  SUB( bad_sub )
-  {
-    REQ( 9, >, 8 );
-    REQ( 9, <, 8 );
-    REQ( 9, !=, 8 );
-  };
-
-  SUB( good_again_sub )
-  {
-    REQ( 8, ==, 9 );
-  };
-}
-*/
 
 CONFIG(Configurations) {
   for (; argn > 0; argn--, argc++)
@@ -56,12 +16,14 @@ CONFIG(Configurations) {
   // NO_OUTPUT();
 }
 
+/*
 TEST(TestTimerMacros)
 {
   int i = 0;
   REQ(TIMER(i++), >=, 0);  // Run once and measure the time
   REQ(AVG_TIMER(i++, 100), >=, 0);  // Run several times and return the average time
 }
+*/
 
 TEST(Default_NoPrintf_handling)
 {
@@ -73,7 +35,7 @@ TEST(Default_NoPrintf_handling)
   REQ( *Default.get().c_str(), ==, '\0' );
 }
 
-TEST(NoPrintf_Empty_Creations)
+TEST(Can_create_Empty_Strings)
 {
   SUB( EmptyString )
   {
@@ -84,7 +46,7 @@ TEST(NoPrintf_Empty_Creations)
     REQ(  EmptyString.get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
-  SUB( EmptyString_and_args )
+  SUB( EmptyString_ignores_args )
   {
     NoPrintf EmptyString("");
     EmptyString.arg("invisible").arg(0L);
@@ -94,7 +56,7 @@ TEST(NoPrintf_Empty_Creations)
     REQ(  EmptyString.get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
-  SUB( Anonymous_default )
+  SUB( Anonymous_default_is_empty )
   {
     REQ(  NoPrintf().get(), ==, std::string() );
     REQ(  NoPrintf().get(), ==, std::string("") );
@@ -102,7 +64,7 @@ TEST(NoPrintf_Empty_Creations)
     REQ(  NoPrintf().get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
-  SUB( Anonymous_empty )
+  SUB( Anonymous_empty_is_empty )
   {
     const char *nix="\0";
     std::string leer("");
@@ -113,7 +75,7 @@ TEST(NoPrintf_Empty_Creations)
     REQ(  NoPrintf(deflt).get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
-  SUB( Anonymous_and_args )
+  SUB( Anonymous_empty_ignores_args )
   {
     REQ(  NoPrintf().arg("invisible").arg(0L).get(), ==, std::string() );
     REQ(  NoPrintf().arg("invisible").arg(0L).get(), ==, std::string("") );
@@ -121,6 +83,52 @@ TEST(NoPrintf_Empty_Creations)
     REQ(  NoPrintf().arg("invisible").arg(0L).get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
+  SUB( Numerical_int )
+  {
+    REQ( std::string("a) Integer A=0, B=1, C=-1."), ==, NoPrintf("a) Integer A=$1, B=$2, C=$3.")
+                                                       .arg(static_cast<int>(0))
+                                                       .arg(static_cast<int>(1))
+                                                       .arg(static_cast<int>(-1))
+                                                       .get() );
+    REQ( std::string("b) Integer A=0, B=255."), ==, NoPrintf("b) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<uint8_t>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<uint8_t>::max()))
+                                                       .get() );
+    REQ( std::string("c) Integer A=-128, B=127."), ==, NoPrintf("c) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<int8_t>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<int8_t>::max()))
+                                                       .get() );
+    REQ( std::string("d) Integer A=0, B=65535."), ==, NoPrintf("d) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<uint16_t>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<uint16_t>::max()))
+                                                       .get() );
+    REQ( std::string("e) Integer A=-32768, B=32767."), ==, NoPrintf("e) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<int16_t>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<int16_t>::max()))
+                                                       .get() );
+    REQ( std::string("f) Integer A=0, B=65535."), ==, NoPrintf("f) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<unsigned short>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<unsigned short>::max()))
+                                                       .get() );
+    REQ( std::string("g) Integer A=-32768, B=32767."), ==, NoPrintf("g) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<signed short>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<signed short>::max()))
+                                                       .get() );
+    // must fail, because signed int overflow in $2
+    REQ( std::string("h) Integer A=0, B=4294967295."), !=, NoPrintf("h) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<unsigned int>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<unsigned int>::max()))
+                                                       .get() );
+
+    REQ( std::string("i) Integer A=-2147483648, B=2147483647."), ==, NoPrintf("i) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<signed int>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<signed int>::max()))
+                                                       .get() );
+    REQ( std::string("j) Integer A=-2147483648, B=2147483647."), ==, NoPrintf("j) Integer A=$1, B=$2.")
+                                                       .arg(static_cast<int>(std::numeric_limits<int>::min()))
+                                                       .arg(static_cast<int>(std::numeric_limits<int>::max()))
+                                                       .get() );
+  };
 }
 
 
@@ -186,17 +194,21 @@ TEST(NoPrintf_SimpleString_Creations)
 // To test DATA
 DATA(GetFailedTests)
 {
+  unsigned int failedTestCount = 0;
   std::cout << "-----------------------------" << std::endl;
   std::cout << "Failed tests:" << std::endl;
-  data->IterSons( [] (const lightest::Data* item )
+  data->IterSons( [&failedTestCount] (const lightest::Data* item )
     {
       const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
       if (test->GetFailed())
       {
         std::cout << " * " << test->GetName() << std::endl;
+        failedTestCount++;
       }
     }
   ); // lambda-end
+  std::cout << failedTestCount << " test" << (failedTestCount > 1 ? "s" : "")
+            << " failed." << std::endl;
   std::cout << "-----------------------------" << std::endl;
   if (lightest::toOutput) {
     std::cout << "Now the overall report:" << std::endl;

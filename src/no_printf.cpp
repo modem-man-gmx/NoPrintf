@@ -119,7 +119,8 @@ std::string NoPrintf::get() const
   {
     char placehold_chr = work[ offs+1 ];
     size_t placehold_idx = placehold_chr - '0';
-    switch( placehold_chr )
+
+    switch( placehold_chr ) // if you feel this could better be an if(range1)-elif(range2)-endif construct, think of easy extension to $0, $a..$z. If you still ... do benchmarks.
     {
       case '$' :
       {
@@ -188,33 +189,8 @@ NoPrintf& NoPrintf::operator +=(const char* rhs)
 }
 
 
-NoPrintf& NoPrintf::arg(const std::string& str)
-{
-  //m_args.push_back(str);
-  m_args.emplace(m_args.end(), std::move(str));
-
-# if defined(DEBUG) && 0  // only for testing
-  std::cout << "args=" << m_args.size() << std::endl;
-  for( auto a : m_args )
-  { std::cout << a << ", ";
-  }
-  std::cout << "\n";
-# endif
-  return *this;
-}
-
-
-NoPrintf& NoPrintf::arg(const char* txt)
-{
-  if(txt)
-    { return this->arg( std::string(txt) );
-    }
-  return *this;
-}
-
-
 // a hopefully smaller and faster implementation compared with ltoa() and to_string()
-static std::string& collect_int( unsigned int uVal, std::string& buffer, bool Minus = false )
+std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus )
 {
   if( uVal==0 )
   {
@@ -233,24 +209,6 @@ static std::string& collect_int( unsigned int uVal, std::string& buffer, bool Mi
     std::reverse( buffer.begin(), buffer.end() );
   }
   return buffer;
-}
-
-
-// need to introduce template and template specification soon
-NoPrintf& NoPrintf::arg( unsigned long int uVal )
-{
-  std::string collect;
-  return this->arg( collect_int( uVal, collect ) );
-}
-
-
-NoPrintf& NoPrintf::arg( signed long int iVal )
-{
-  std::string collect;
-  if(iVal<0)
-    return this->arg( collect_int( iVal * -1, collect, true ) );
-  else
-    return this->arg( collect_int( iVal, collect ) );
 }
 
 
