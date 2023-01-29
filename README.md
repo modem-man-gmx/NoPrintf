@@ -26,14 +26,14 @@ And last but not least from an i18n discussion on [Ahoy DTU Discord](https://dis
 where we ended up in simple i18n allows "no printf", because of grammar and argument order.
 
 Aside of this, I always wanted to have an "fixed format engineers formatting" for numbers, like
-```
-1.345 mW * 100
-134.5 mW * 100
-13.45 W * 100
-1.345 kW * 100
-134.5 kW * 100
-13.45 MW
-```
+
+> 1.345 mW * 100
+> 134.5 mW * 100
+> 13.45 W * 100
+> 1.345 kW * 100
+> 134.5 kW * 100
+> 13.45 MW
+
 and so on ...
 
 ## Goals:
