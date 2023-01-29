@@ -9,13 +9,13 @@
 [![compiles on Linux](https://img.shields.io/badge/OS-Linux-blue?style=plastic?logo=linux&logoColor=white)](https://www.linux.org/ "Linux")
 [![compiles on Windows](https://img.shields.io/badge/OS-Windows-blue?style=plastic?logo=windows&logoColor=white)](https://www.msys2.org// "Windows via MSYS2")
 [![XFCE](https://img.shields.io/badge/XFCE-%232284F2.svg?style=plastic&logo=xfce&logoColor=white)](https://xubuntu.org/) click the badges to see more details...
+![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ![Logo](doc/no_printf_logo.png?raw=true)
 - NoPrintf - try to avoid printf without loosing formatted strings + without fiddling with &lt;&lt; operators.
 - Have engineers formatted units like mV, kWh auto selected from field size.
 - Select language from a table.
 - Robustness by test driven development and unit test integration in local runs and github actions.
-
 
 ## Join me?
 [![contributions - welcome](https://img.shields.io/badge/contributions-welcome-blue)](/CONTRIBUTING.md "How to contribute best") click the badge to see details.
