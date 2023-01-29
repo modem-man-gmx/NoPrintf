@@ -249,7 +249,11 @@ class DataReq : public Data, public DataUnit {
       SetColor(Color::Reset);
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      PrintTabs() << "    +   ACTUAL: " << actual << endl;
+      size_t OpLen = strlen(operator_);
+      char placehold[OpLen + 1];
+      memset(placehold, ' ', OpLen);
+      placehold[OpLen]='\0';
+      PrintTabs() << "    +   ACTUAL: " << placehold << " " << actual << endl;
       PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
