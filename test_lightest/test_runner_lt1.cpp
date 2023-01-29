@@ -89,6 +89,37 @@ TEST(Can_create_Empty_Strings)
 
 TEST(Handling_Numbers_in_DotArg)
 {
+  SUB( Numerical_8bit_int )
+  {
+    char a = 0, b = 1, c=-1;
+    char Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") ShortShort A=" << static_cast<short>(a) << ", B=" << static_cast<short>(b) << ", C=" << static_cast<short>(c) << ".";
+    REQ( NoPrintf("a) ShortShort A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
+    Topic++;
+
+    // 8 bit unsigned values are likely not fit
+    if( std::numeric_limits<char>::max() == std::numeric_limits<uint8_t>::max() &&
+        std::numeric_limits<char>::min() == std::numeric_limits<uint8_t>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<uint8_t>::min();
+      b = std::numeric_limits<uint8_t>::max();
+      Required << Topic << ") ShortShort A=" << static_cast<short>(a) << ", B=" << static_cast<short>(b) << ".";
+      REQ( NoPrintf("b) ShortShort A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // 8 bit signed values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << Topic << ") ShortShort A=" << static_cast<short>(a) << ", B=" << static_cast<short>(b) << ".";
+    REQ( NoPrintf("c) ShortShort A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    //Topic++;
+  };
+
   SUB( Numerical_short )
   {
     short a = 0, b = 1, c=-1;
@@ -429,6 +460,16 @@ TEST(Handling_Numbers_in_DotArg)
     REQ( NoPrintf("o) Long A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
 
     // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
+  };
+
+  SUB( Numerical_unsigned_long )
+  {
+    unsigned long a = 0, b = 1, c = std::numeric_limits<signed long>::max();
+    char Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf("a) Long A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
   };
 
 }; // end-of TEST(Handling_Numbers_in_DotArg)
