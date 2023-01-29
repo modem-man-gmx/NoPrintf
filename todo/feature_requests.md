@@ -10,3 +10,4 @@
 
 - simple LATIN translatable unit by using 2D array of strings (sorry for the charset codepage problems then),
 - then verify, if Utf8 or std::wstring is the better on ESP, switch to, to be able using other charsets too. (we do not many string fiddling, so Utf8 could do the job)
+  [MBCS & Co in C++](https://en.cppreference.com/w/cpp/string/multibyte)
