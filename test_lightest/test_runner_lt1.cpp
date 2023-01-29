@@ -1,4 +1,5 @@
 #include <string>
+#include <sstream>
 #include <limits>
 #include "no_printf.hpp"
 
@@ -85,49 +86,99 @@ TEST(Can_create_Empty_Strings)
 
   SUB( Numerical_int )
   {
-    REQ( std::string("a) Integer A=0, B=1, C=-1."), ==, NoPrintf("a) Integer A=$1, B=$2, C=$3.")
-                                                       .arg(static_cast<int>(0))
-                                                       .arg(static_cast<int>(1))
-                                                       .arg(static_cast<int>(-1))
-                                                       .get() );
-    REQ( std::string("b) Integer A=0, B=255."), ==, NoPrintf("b) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<uint8_t>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<uint8_t>::max()))
-                                                       .get() );
-    REQ( std::string("c) Integer A=-128, B=127."), ==, NoPrintf("c) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<int8_t>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<int8_t>::max()))
-                                                       .get() );
-    REQ( std::string("d) Integer A=0, B=65535."), ==, NoPrintf("d) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<uint16_t>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<uint16_t>::max()))
-                                                       .get() );
-    REQ( std::string("e) Integer A=-32768, B=32767."), ==, NoPrintf("e) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<int16_t>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<int16_t>::max()))
-                                                       .get() );
-    REQ( std::string("f) Integer A=0, B=65535."), ==, NoPrintf("f) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<unsigned short>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<unsigned short>::max()))
-                                                       .get() );
-    REQ( std::string("g) Integer A=-32768, B=32767."), ==, NoPrintf("g) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<signed short>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<signed short>::max()))
-                                                       .get() );
-    // must fail, because signed int overflow in $2
-    REQ( std::string("h) Integer A=0, B=4294967295."), !=, NoPrintf("h) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<unsigned int>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<unsigned int>::max()))
-                                                       .get() );
+    int a = 0, b = 1, c=-1;
+    char Topic = 'a';
+    std::stringstream Required;
 
-    REQ( std::string("i) Integer A=-2147483648, B=2147483647."), ==, NoPrintf("i) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<signed int>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<signed int>::max()))
-                                                       .get() );
-    REQ( std::string("j) Integer A=-2147483648, B=2147483647."), ==, NoPrintf("j) Integer A=$1, B=$2.")
-                                                       .arg(static_cast<int>(std::numeric_limits<int>::min()))
-                                                       .arg(static_cast<int>(std::numeric_limits<int>::max()))
-                                                       .get() );
+    Required << Topic << ") Integer A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf("a) Integer A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
+
+    // 8 bit unsigned values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<uint8_t>::min();
+    b = std::numeric_limits<uint8_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("b) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // 8 bit signed values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("c) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // 16 bit unsigned values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<uint16_t>::min();
+    b = std::numeric_limits<uint16_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("d) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // 16 bit signed values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int16_t>::min();
+    b = std::numeric_limits<int16_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("e) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // bit problematic test here, must be made CPU dependent
+    // 32 bit unsigned values could fit
+    Required.str(std::string());
+    a = std::numeric_limits<uint32_t>::min();
+    b = std::numeric_limits<uint32_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("f) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // 32 bit signed values could fit
+    Required.str(std::string());
+    a = std::numeric_limits<int32_t>::min();
+    b = std::numeric_limits<int32_t>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("g) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // unsigned short values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<unsigned short>::min();
+    b = std::numeric_limits<unsigned short>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("h) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // signed short values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<signed short>::min();
+    b = std::numeric_limits<signed short>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("i) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    Required.str(std::string());
+    a = std::numeric_limits<unsigned int>::min();
+    b = std::numeric_limits<unsigned int>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    // if int is unsigned (unlikely) unsigned int values must fit
+    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() )
+    {
+      REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    else
+    {
+      REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+
+    // signed int values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<signed int>::min();
+    b = std::numeric_limits<signed int>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("k) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // unspecified (compiler preset) int values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int>::min();
+    b = std::numeric_limits<int>::max();
+    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("l) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+
+    // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
   };
 }
 

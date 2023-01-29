@@ -9,6 +9,8 @@
     <File Name="../src/no_printf.hpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="doc">
+    <File Name="../.clang-format"/>
+    <File Name="../CONTRIBUTING.md"/>
     <File Name="../doc/README_STORY.md"/>
     <File Name="../README.md"/>
     <File Name="../Makefile"/>
