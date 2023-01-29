@@ -23,6 +23,7 @@ https://github.com/zhangzheheng12345
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <cstring> // strlen
 
 // For coloring on Windows
 #ifdef _WIN_
