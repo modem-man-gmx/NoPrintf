@@ -84,7 +84,137 @@ TEST(Can_create_Empty_Strings)
     REQ(  NoPrintf().arg("invisible").arg(0L).get().c_str(), !=, static_cast<const char*>(nullptr) );
   };
 
-  SUB( Numerical_int )
+  SUB( Numerical_short )
+  {
+    short a = 0, b = 1, c=-1;
+    char Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") Short A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf("a) Short A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
+    Topic++;
+
+    // 8 bit unsigned values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<uint8_t>::min();
+    b = std::numeric_limits<uint8_t>::max();
+    Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("b) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    Topic++;
+
+    // 8 bit signed values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("c) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    Topic++;
+
+    // 16 bit unsigned values could perhaps fit
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint16_t>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<uint16_t>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<uint16_t>::min();
+      b = std::numeric_limits<uint16_t>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("d) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // 16 bit signed values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<int16_t>::min();
+    b = std::numeric_limits<int16_t>::max();
+    Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("e) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    Topic++;
+
+    // 32 bit unsigned values will likely not fit
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint32_t>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<uint32_t>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<uint32_t>::min();
+      b = std::numeric_limits<uint32_t>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("f) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // 32 bit signed values will likely not fit
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<int32_t>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<int32_t>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<int32_t>::min();
+      b = std::numeric_limits<int32_t>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("g) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // unsigned short values likely not fit in short, because short == signed short
+    if( std::numeric_limits<unsigned short>::max() >= std::numeric_limits<int32_t>::max() &&
+        std::numeric_limits<unsigned short>::min() <= std::numeric_limits<int32_t>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<unsigned short>::min();
+      b = std::numeric_limits<unsigned short>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("h) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // signed short values must fit
+    Required.str(std::string());
+    a = std::numeric_limits<signed short>::min();
+    b = std::numeric_limits<signed short>::max();
+    Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf("i) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    Topic++;
+
+    // a (singned) short value can not hold an unsigned int
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<unsigned int>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<unsigned int>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<unsigned int>::min();
+      b = std::numeric_limits<unsigned int>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("j) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // a (singned) short value can likely not hold an signed int
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<signed int>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<signed int>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<signed int>::min();
+      b = std::numeric_limits<signed int>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("k) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // unspecified (compiler preset) int values can fit it short == int
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<int>::max() &&
+        std::numeric_limits<short>::min() <= std::numeric_limits<int>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<int>::min();
+      b = std::numeric_limits<int>::max();
+      Required << Topic << ") Short A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("l) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
+  };
+
+
+  SUB( Numerical_integer )
   {
     int a = 0, b = 1, c=-1;
     char Topic = 'a';
