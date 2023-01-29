@@ -285,19 +285,18 @@ TEST(Handling_Numbers_in_DotArg)
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf("i) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
 
-    Required.str(std::string());
-    a = std::numeric_limits<unsigned int>::min();
-    b = std::numeric_limits<unsigned int>::max();
-    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    // if int is unsigned (unlikely) unsigned int values must fit
-    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() )
+    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() &&
+        std::numeric_limits<int>::min() == std::numeric_limits<unsigned int>::min() )
     {
+      Required.str(std::string());
+      a = std::numeric_limits<unsigned int>::min();
+      b = std::numeric_limits<unsigned int>::max();
+      REQ( a, <, b );
+      Required << Topic << ") Integer A=" << a << ", B=" << b << ".";
+      // if int is unsigned (unlikely) unsigned int values must fit
       REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
     }
-    else
-    {
-      REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
-    }
+    Topic++;
 
     // signed int values must fit
     Required.str(std::string());
@@ -404,11 +403,17 @@ TEST(Handling_Numbers_in_DotArg)
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf("l) Long A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
 
-    Required.str(std::string());
-    a = std::numeric_limits<unsigned long>::min();
-    b = std::numeric_limits<unsigned long>::max();
-    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("m) Long A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    if( std::numeric_limits<long>::max() == std::numeric_limits<unsigned long>::max() &&
+        std::numeric_limits<long>::min() == std::numeric_limits<unsigned long>::min() )
+    {
+      Required.str(std::string());
+      a = std::numeric_limits<unsigned long>::min();
+      b = std::numeric_limits<unsigned long>::max();
+      REQ( a, <, b );
+      Required << Topic << ") Long A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf("m) Long A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    }
+    Topic++;
 
     Required.str(std::string());
     a = std::numeric_limits<signed long>::min();
