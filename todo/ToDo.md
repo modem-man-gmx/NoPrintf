@@ -13,7 +13,7 @@
 - do benchmarks on size and speed, basically and on ESP8266
 
 ### On the `NoPrintf& arg( unsigned long int )`
-- need to introduce template and template specification soon
+- add optional parameter for fillup alignment, bit like printf("%20s, %-20s",x,x) -> arg( ulong val, int align=0, char fill=' ' )
 
 ### On the `std::string& collect_int( unsigned int, std::string&, bool )`
 - the old C++03 trick of giving a buffer reference is probably not needed with gnu++11
@@ -41,3 +41,5 @@ Hmmm ... Google Test is perhaps out, because rev13.xx is requiring C++14 in the 
 - SEEN, that C++11 does support Delegating Constructors, made it
 - integrate Unit Test -> I started with [Lightest](https://github.com/zhangzheheng12345/Lightest)
 - verify std::string NoPrintf::get() vs. - std::string NoPrintf::get_ref(), do we need the distinction between ref and copy? in C++14 we have RVO, in 17 it is mandatory ... depends on what we have at ESP/PlatformIO ... most PlatformIO project still stuck at gnu++11 (c++11 with gnu extension, which are required for some Espresif parts) -> the good news: gnu++11 does RVO.
+- the `NoPrintf& arg( unsigned long int )` got template, but not with template specification (not needed and perhaps an g++ DR in gnu++11).
+
