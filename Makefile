@@ -11,6 +11,7 @@ MyUnitTExe     := test_runner_lt1.exe
 MyUnitTExe_SRC := test_lightest/test_runner_lt1.cpp
 MyLIB          := libnoprint.a
 MyLIB_SRC      := src/no_printf.cpp
+MyLIB_INC      := src/no_printf.hpp
 
 INC_PATHS ?= ./inc ./src ./lib/lightest/include
 LIB_PATHS ?= ./lib .
@@ -19,6 +20,8 @@ LIB_NAMES ?= $(MyLIB) #libnoprint.a
 MyDemoExe_OBJS  := $(MyDemoExe_SRC:.cpp=.o)
 MyUnitTExe_OBJS := $(MyUnitTExe_SRC:.cpp=.o)
 MyLIB_OBJS      := $(MyLIB_SRC:.cpp=.o)
+
+AllSrc = $(MyDemoExe_SRC) $(MyUnitTExe_SRC) $(MyLIB_SRC) $(MyLIB_INC)
 
 $(MyLIB): $(MyLIB_OBJS)
 	@echo "now linking $^ to $@   by invoking:"
@@ -87,3 +90,7 @@ distcheck: exe
 	@echo "nothing useful implemented here, so we just see, if the Demo works"
 	chmod +x $(MyDemoExe)
 	./$(MyDemoExe)
+
+stylecheck:
+	@clang-format.exe -n -W $(AllSrc) && echo "Style Guide check OK." || echo "Style Guide violation, pls. respect my .clang-format file. No merge acceptable!"
+
