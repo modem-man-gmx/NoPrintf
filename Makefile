@@ -1,6 +1,6 @@
 # build SampleDemo
 
-.PHONY: all exe unittest lib remake clean check distcheck info
+.PHONY: all exe unittest lib remake clean check distcheck info stylecheck
 
 # 1st target is the target we build with no args, so i want to have 'all' here.
 all: lib exe
@@ -11,6 +11,7 @@ MyUnitTExe     := test_runner_lt1.exe
 MyUnitTExe_SRC := test_lightest/test_runner_lt1.cpp
 MyLIB          := libnoprint.a
 MyLIB_SRC      := src/no_printf.cpp
+MyLIB_INC      := src/no_printf.hpp
 
 INC_PATHS ?= ./inc ./src ./lib/lightest/include
 LIB_PATHS ?= ./lib .
@@ -19,6 +20,8 @@ LIB_NAMES ?= $(MyLIB) #libnoprint.a
 MyDemoExe_OBJS  := $(MyDemoExe_SRC:.cpp=.o)
 MyUnitTExe_OBJS := $(MyUnitTExe_SRC:.cpp=.o)
 MyLIB_OBJS      := $(MyLIB_SRC:.cpp=.o)
+
+AllSrc = $(MyDemoExe_SRC) $(MyUnitTExe_SRC) $(MyLIB_SRC) $(MyLIB_INC)
 
 $(MyLIB): $(MyLIB_OBJS)
 	@echo "now linking $^ to $@   by invoking:"
@@ -77,6 +80,7 @@ info:
 	@echo "clean    	clean up result + intermediate files"
 	@echo "check		run tests"
 	@echo "distcheck	run delivery tests"
+	@echo "stylecheck	run coding conventions"
 	@echo "info 		this one"
 
 check: clean unittest
@@ -87,3 +91,7 @@ distcheck: exe
 	@echo "nothing useful implemented here, so we just see, if the Demo works"
 	chmod +x $(MyDemoExe)
 	./$(MyDemoExe)
+
+stylecheck:
+	@clang-format -n -W $(AllSrc) && echo "Style Guide check OK." || echo "Style Guide violation, pls. run clang-format with my .clang-format file. No merge acceptable!"
+

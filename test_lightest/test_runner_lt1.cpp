@@ -1,17 +1,18 @@
-#include <string>
-#include <sstream>
 #include <limits>
-#include "no_printf.hpp"
+#include <sstream>
+#include <string>
 
 #include "lightest/lightest.h"
+#include "no_printf.hpp"
 //#define __FILE__ "test.cpp"
 
 
-CONFIG(Configurations) {
-  for (; argn > 0; argn--, argc++)
+CONFIG( Configurations )
+{
+  for( ; argn > 0; argn--, argc++ )
   {
-    if (std::string(*argc) == "--no-color") NO_COLOR();
-    if (std::string(*argc) == "--no-output") NO_OUTPUT();
+    if( std::string( *argc ) == "--no-color" ) NO_COLOR();
+    if( std::string( *argc ) == "--no-output" ) NO_OUTPUT();
   }
   // NO_COLOR();
   // NO_OUTPUT();
@@ -26,131 +27,165 @@ TEST(TestTimerMacros)
 }
 */
 
-TEST(Default_NoPrintf_handling)
+TEST( Default_NoPrintf_handling )
 {
   NoPrintf Default;
-  MUST(
-  REQ(  Default.get(), ==, std::string() )
-  );
-  REQ(  Default.get(), ==, std::string("") );
+  MUST( REQ( Default.get(), ==, std::string() ) ); // clang-format off
+  REQ( Default.get(), ==, std::string( "" ) );
   REQ( *Default.get().c_str(), ==, '\0' );
-}
+} // end-of TEST(Default_NoPrintf_handling)
 
-TEST(Can_create_Empty_Strings)
+TEST( Can_create_Empty_Strings )
 {
   SUB( EmptyString )
   {
-    NoPrintf EmptyString("");
-    REQ(  EmptyString.get(), ==, std::string() );
-    REQ(  EmptyString.get(), ==, std::string("") );
+    NoPrintf EmptyString( "" );
+    REQ( EmptyString.get(), ==, std::string() );
+    REQ( EmptyString.get(), ==, std::string( "" ) );
     REQ( *EmptyString.get().c_str(), ==, '\0' );
-    REQ(  EmptyString.get().c_str(), !=, static_cast<const char*>(nullptr) );
+    REQ( EmptyString.get().c_str(), !=, static_cast<const char*>( nullptr ) );
   };
 
   SUB( EmptyString_ignores_args )
   {
-    NoPrintf EmptyString("");
-    EmptyString.arg("invisible").arg(0L);
-    REQ(  EmptyString.get(), ==, std::string() );
-    REQ(  EmptyString.get(), ==, std::string("") );
+    NoPrintf EmptyString( "" );
+    EmptyString.arg( "invisible" ).arg( 0L );
+    REQ( EmptyString.get(), ==, std::string() );
+    REQ( EmptyString.get(), ==, std::string( "" ) );
     REQ( *EmptyString.get().c_str(), ==, '\0' );
-    REQ(  EmptyString.get().c_str(), !=, static_cast<const char*>(nullptr) );
+    REQ( EmptyString.get().c_str(), !=, static_cast<const char*>( nullptr ) );
   };
 
   SUB( Anonymous_default_is_empty )
   {
-    REQ(  NoPrintf().get(), ==, std::string() );
-    REQ(  NoPrintf().get(), ==, std::string("") );
+    REQ( NoPrintf().get(), ==, std::string() );
+    REQ( NoPrintf().get(), ==, std::string( "" ) );
     REQ( *NoPrintf().get().c_str(), ==, '\0' );
-    REQ(  NoPrintf().get().c_str(), !=, static_cast<const char*>(nullptr) );
+    REQ( NoPrintf().get().c_str(), !=, static_cast<const char*>( nullptr ) );
   };
 
   SUB( Anonymous_empty_is_empty )
   {
-    const char *nix="\0";
-    std::string leer("");
+    const char* nix = "\0";
+    std::string leer( "" );
     std::string deflt;
-    REQ(  NoPrintf( ""  ).get(), ==, std::string() );
-    REQ(  NoPrintf( nix ).get(), ==, std::string("") );
-    REQ( *NoPrintf( leer).get().c_str(), ==, '\0' );
-    REQ(  NoPrintf(deflt).get().c_str(), !=, static_cast<const char*>(nullptr) );
+    REQ( NoPrintf( "" ).get(), ==, std::string() );
+    REQ( NoPrintf( nix ).get(), ==, std::string( "" ) );
+    REQ( *NoPrintf( leer ).get().c_str(), ==, '\0' );
+    REQ( NoPrintf( deflt ).get().c_str(), !=, static_cast<const char*>( nullptr ) );
   };
 
   SUB( Anonymous_empty_ignores_args )
   {
-    REQ(  NoPrintf().arg("invisible").arg(0L).get(), ==, std::string() );
-    REQ(  NoPrintf().arg("invisible").arg(0L).get(), ==, std::string("") );
-    REQ( *NoPrintf().arg("invisible").arg(0L).get().c_str(), ==, '\0' );
-    REQ(  NoPrintf().arg("invisible").arg(0L).get().c_str(), !=, static_cast<const char*>(nullptr) );
+    REQ( NoPrintf().arg( "invisible" ).arg( 0L ).get(), ==, std::string() );
+    REQ( NoPrintf().arg( "invisible" ).arg( 0L ).get(), ==, std::string( "" ) );
+    REQ( *NoPrintf().arg( "invisible" ).arg( 0L ).get().c_str(), ==, '\0' );
+    REQ( NoPrintf().arg( "invisible" ).arg( 0L ).get().c_str(), !=, static_cast<const char*>( nullptr ) );
+  };
+
+}; // end-of TEST(Can_create_Empty_Strings)
+
+
+TEST( Handling_Numbers_in_DotArg )
+{
+  SUB( Numerical_8bit_int )
+  {
+    char              a = 0, b = 1, c = -1;
+    char              Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") ShortShort A=" << static_cast<short>( a ) << ", B=" << static_cast<short>( b ) << ", C=" << static_cast<short>( c ) << ".";
+    REQ( NoPrintf( "a) ShortShort A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
+    Topic++;
+
+    // 8 bit unsigned values are likely not fit
+    if( std::numeric_limits<char>::max() == std::numeric_limits<uint8_t>::max()
+     && std::numeric_limits<char>::min() == std::numeric_limits<uint8_t>::min() )
+    {
+      Required.str( std::string() );
+      a = std::numeric_limits<uint8_t>::min();
+      b = std::numeric_limits<uint8_t>::max();
+      Required << Topic << ") ShortShort A=" << static_cast<short>( a ) << ", B=" << static_cast<short>( b ) << ".";
+      REQ( NoPrintf( "b) ShortShort A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    // 8 bit signed values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << Topic << ") ShortShort A=" << static_cast<short>( a ) << ", B=" << static_cast<short>( b ) << ".";
+    REQ( NoPrintf( "c) ShortShort A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    //Topic++;
   };
 
   SUB( Numerical_short )
   {
-    short a = 0, b = 1, c=-1;
-    char Topic = 'a';
+    short             a = 0, b = 1, c = -1;
+    char              Topic = 'a';
     std::stringstream Required;
 
     Required << Topic << ") Short A=" << a << ", B=" << b << ", C=" << c << ".";
-    REQ( NoPrintf("a) Short A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
+    REQ( NoPrintf( "a) Short A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
     Topic++;
 
     // 8 bit unsigned values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<uint8_t>::min();
     b = std::numeric_limits<uint8_t>::max();
     Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("b) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "b) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 8 bit signed values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int8_t>::min();
     b = std::numeric_limits<int8_t>::max();
     Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("c) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "c) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 16 bit unsigned values could perhaps fit
-    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint16_t>::max() &&
-        std::numeric_limits<short>::min() <= std::numeric_limits<uint16_t>::min() )
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint16_t>::max()
+     && std::numeric_limits<short>::min() <= std::numeric_limits<uint16_t>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<uint16_t>::min();
       b = std::numeric_limits<uint16_t>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("d) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "d) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
     // 16 bit signed values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int16_t>::min();
     b = std::numeric_limits<int16_t>::max();
     Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("e) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "e) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 32 bit unsigned values will likely not fit
-    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint32_t>::max() &&
-        std::numeric_limits<short>::min() <= std::numeric_limits<uint32_t>::min() )
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<uint32_t>::max()
+     && std::numeric_limits<short>::min() <= std::numeric_limits<uint32_t>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<uint32_t>::min();
       b = std::numeric_limits<uint32_t>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("f) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "f) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
     // 32 bit signed values will likely not fit
-    if( std::numeric_limits<short>::max() >= std::numeric_limits<int32_t>::max() &&
-        std::numeric_limits<short>::min() <= std::numeric_limits<int32_t>::min() )
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<int32_t>::max()
+     && std::numeric_limits<short>::min() <= std::numeric_limits<int32_t>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<int32_t>::min();
       b = std::numeric_limits<int32_t>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("g) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "g) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
@@ -158,31 +193,31 @@ TEST(Can_create_Empty_Strings)
     if( std::numeric_limits<unsigned short>::max() >= std::numeric_limits<int32_t>::max() &&
         std::numeric_limits<unsigned short>::min() <= std::numeric_limits<int32_t>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<unsigned short>::min();
       b = std::numeric_limits<unsigned short>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("h) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "h) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
     // signed short values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<signed short>::min();
     b = std::numeric_limits<signed short>::max();
     Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("i) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "i) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // a (singned) short value can not hold an unsigned int
     if( std::numeric_limits<short>::max() >= std::numeric_limits<unsigned int>::max() &&
         std::numeric_limits<short>::min() <= std::numeric_limits<unsigned int>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<unsigned int>::min();
       b = std::numeric_limits<unsigned int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("j) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "j) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
@@ -190,23 +225,23 @@ TEST(Can_create_Empty_Strings)
     if( std::numeric_limits<short>::max() >= std::numeric_limits<signed int>::max() &&
         std::numeric_limits<short>::min() <= std::numeric_limits<signed int>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<signed int>::min();
       b = std::numeric_limits<signed int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("k) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "k) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
     // unspecified (compiler preset) int values can fit it short == int
-    if( std::numeric_limits<short>::max() >= std::numeric_limits<int>::max() &&
-        std::numeric_limits<short>::min() <= std::numeric_limits<int>::min() )
+    if( std::numeric_limits<short>::max() >= std::numeric_limits<int>::max()
+     && std::numeric_limits<short>::min() <= std::numeric_limits<int>::min() )
     {
-      Required.str(std::string());
+      Required.str( std::string() );
       a = std::numeric_limits<int>::min();
       b = std::numeric_limits<int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
-      REQ( NoPrintf("l) Short A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      REQ( NoPrintf( "l) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
     Topic++;
 
@@ -216,101 +251,227 @@ TEST(Can_create_Empty_Strings)
 
   SUB( Numerical_integer )
   {
-    int a = 0, b = 1, c=-1;
-    char Topic = 'a';
+    long              a = 0, b = 1, c = -1;
+    char              Topic = 'a';
     std::stringstream Required;
 
     Required << Topic << ") Integer A=" << a << ", B=" << b << ", C=" << c << ".";
-    REQ( NoPrintf("a) Integer A=$1, B=$2, C=$3.").arg(a).arg(b).arg(c).get(), ==, Required.str() );
+    REQ( NoPrintf( "a) Integer A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
 
     // 8 bit unsigned values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<uint8_t>::min();
     b = std::numeric_limits<uint8_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("b) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "b) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 8 bit signed values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int8_t>::min();
     b = std::numeric_limits<int8_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("c) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "c) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit unsigned values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<uint16_t>::min();
     b = std::numeric_limits<uint16_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("d) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "d) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit signed values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int16_t>::min();
     b = std::numeric_limits<int16_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("e) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "e) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // bit problematic test here, must be made CPU dependent
     // 32 bit unsigned values could fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<uint32_t>::min();
     b = std::numeric_limits<uint32_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("f) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "f) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 32 bit signed values could fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int32_t>::min();
     b = std::numeric_limits<int32_t>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("g) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "g) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unsigned short values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<unsigned short>::min();
     b = std::numeric_limits<unsigned short>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("h) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "h) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // signed short values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<signed short>::min();
     b = std::numeric_limits<signed short>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("i) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "i) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    Required.str(std::string());
-    a = std::numeric_limits<unsigned int>::min();
-    b = std::numeric_limits<unsigned int>::max();
-    Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    // if int is unsigned (unlikely) unsigned int values must fit
-    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() )
+    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() &&
+        std::numeric_limits<int>::min() == std::numeric_limits<unsigned int>::min() )
     {
-      REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+      Required.str( std::string() );
+      a = std::numeric_limits<unsigned int>::min();
+      b = std::numeric_limits<unsigned int>::max();
+      REQ( a, <, b );
+      Required << Topic << ") Integer A=" << a << ", B=" << b << ".";
+      // if int is unsigned (unlikely) unsigned int values must fit
+      REQ( NoPrintf( "j) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     }
-    else
-    {
-      REQ( NoPrintf("j) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
-    }
+    Topic++;
 
     // signed int values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<signed int>::min();
     b = std::numeric_limits<signed int>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("k) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "k) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unspecified (compiler preset) int values must fit
-    Required.str(std::string());
+    Required.str( std::string() );
     a = std::numeric_limits<int>::min();
     b = std::numeric_limits<int>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf("l) Integer A=$1, B=$2.").arg(a).arg(b).get(), ==, Required.str() );
+    REQ( NoPrintf( "l) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
   };
-}
+
+
+  SUB( Numerical_long )
+  {
+    int               a = 0, b = 1, c = -1;
+    char              Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
+
+    // 8 bit unsigned values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<uint8_t>::min();
+    b = std::numeric_limits<uint8_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "b) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 8 bit signed values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "c) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 16 bit unsigned values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<uint16_t>::min();
+    b = std::numeric_limits<uint16_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "d) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 16 bit signed values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int16_t>::min();
+    b = std::numeric_limits<int16_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "e) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // bit problematic test here, must be made CPU dependent
+    // 32 bit unsigned values could fit
+    Required.str( std::string() );
+    a = std::numeric_limits<uint32_t>::min();
+    b = std::numeric_limits<uint32_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "f) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 32 bit signed values could fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int32_t>::min();
+    b = std::numeric_limits<int32_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // unsigned short values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<unsigned short>::min();
+    b = std::numeric_limits<unsigned short>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "h) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // signed short values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<signed short>::min();
+    b = std::numeric_limits<signed short>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "i) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    Required.str( std::string() );
+    a = std::numeric_limits<unsigned int>::min();
+    b = std::numeric_limits<unsigned int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    // if int is unsigned (unlikely) unsigned int values must fit
+    REQ( NoPrintf( "j) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // signed int values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<signed int>::min();
+    b = std::numeric_limits<signed int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // unspecified (compiler preset) int values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int>::min();
+    b = std::numeric_limits<int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    if( std::numeric_limits<long>::max() == std::numeric_limits<unsigned long>::max() &&
+        std::numeric_limits<long>::min() == std::numeric_limits<unsigned long>::min() )
+    {
+      Required.str( std::string() );
+      a = std::numeric_limits<unsigned long>::min();
+      b = std::numeric_limits<unsigned long>::max();
+      REQ( a, <, b );
+      Required << Topic << ") Long A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf( "m) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    Required.str( std::string() );
+    a = std::numeric_limits<signed long>::min();
+    b = std::numeric_limits<signed long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "n) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // unspecified long is for sure signed long
+    Required.str( std::string() );
+    a = std::numeric_limits<long>::min();
+    b = std::numeric_limits<long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "o) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
+  };
+
+  SUB( Numerical_unsigned_long )
+  {
+    unsigned long     a = 0, b = 1, c = std::numeric_limits<signed long>::max();
+    char              Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
+  };
+
+}; // end-of TEST(Handling_Numbers_in_DotArg)
 
 
 #define JOHANNES_1_1a "Im Anfang war das Wort, und das Wort war bei Gott, und das Wort war Gott."
@@ -320,78 +481,83 @@ TEST(Can_create_Empty_Strings)
 
 #define First_Thing_A "das Wort"
 #define First_Thing_B "der Urknall"
-#define JWH           "Gott"
-#define ATHEIST       "Singular"
+#define JWH "Gott"
+#define ATHEIST "Singular"
 
-#define BIBLE_OPENING_LINES  JOHANNES_1_1a "\r\n" JOHANNES_1_1b "\r" JOHANNES_1_1c "\n" JOHANNES_1_1d "\t."
+#define BIBLE_OPENING_LINES JOHANNES_1_1a "\r\n" JOHANNES_1_1b "\r" JOHANNES_1_1c "\n" JOHANNES_1_1d "\t."
 
-#define BIBLE_OPENING_TMPL "Im Anfang war $1, und $1 war bei $2, und $1 war $2." \
- "\r\n" \
- "Im Anfang war es bei $2." \
- "\r" \
- "Alles ist durch $1 geworden und ohne $1 wurde nichts, was geworden ist." \
- "\n" \
- "In ihm war das Leben und das Leben war das Licht der Menschen." \
- "\t."
+#define BIBLE_OPENING_TMPL                                                  \
+  "Im Anfang war $1, und $1 war bei $2, und $1 war $2."                     \
+  "\r\n"                                                                    \
+  "Im Anfang war es bei $2."                                                \
+  "\r"                                                                      \
+  "Alles ist durch $1 geworden und ohne $1 wurde nichts, was geworden ist." \
+  "\n"                                                                      \
+  "In ihm war das Leben und das Leben war das Licht der Menschen."          \
+  "\t."
 
 
-TEST(NoPrintf_SimpleString_Creations)
+TEST( NoPrintf_SimpleString_Creations )
 {
   SUB( SimpleString )
   {
-    NoPrintf OneWord("Wort");
-    REQ(  OneWord.get(), ==, std::string("Wort") );
-    REQ(  OneWord.get(), !=, std::string("wort") );
-    REQ(  OneWord.get(), !=, std::string("WORT") );
-    REQ(  OneWord.get(), !=, std::string("Wort\n") );
+    NoPrintf OneWord( "Wort" );
+    REQ( OneWord.get(), ==, std::string( "Wort" ) );
+    REQ( OneWord.get(), !=, std::string( "wort" ) );
+    REQ( OneWord.get(), !=, std::string( "WORT" ) );
+    REQ( OneWord.get(), !=, std::string( "Wort\n" ) );
   };
 
   SUB( Simple_Sentence )
   {
     NoPrintf OneSentence( BIBLE_OPENING_LINES );
-    REQ(  OneSentence.get(), ==, std::string( BIBLE_OPENING_LINES ) );
-    REQ(  OneSentence.get(), ==, std::string( JOHANNES_1_1a "\r\n" JOHANNES_1_1b "\r" JOHANNES_1_1c "\n" JOHANNES_1_1d "\t.") );
+    REQ( OneSentence.get(), ==, std::string( BIBLE_OPENING_LINES ) );
+    REQ( OneSentence.get(), ==, std::string( JOHANNES_1_1a "\r\n" JOHANNES_1_1b "\r" JOHANNES_1_1c "\n" JOHANNES_1_1d "\t." ) );
   };
 
   SUB( Replace_Dollars )
   {
-    NoPrintf Dollars_1( "3$ 4ct, aber 7$$ 6ct." ); Dollars_1.arg(3ul).arg(4ul).arg(7ul).arg(6ul);
+    NoPrintf Dollars_1( "3$ 4ct, aber 7$$ 6ct." );
+    Dollars_1.arg( 3ul ).arg( 4ul ).arg( 7ul ).arg( 6ul );
     REQ( Dollars_1.get(), ==, std::string( "3$ 4ct, aber 7$ 6ct." ) );
 
-    NoPrintf Dollars_2( "$1$ $2ct, aber $3$$ $4ct." ); Dollars_2.arg(3ul).arg(4ul).arg(7ul).arg(6ul);
+    NoPrintf Dollars_2( "$1$ $2ct, aber $3$$ $4ct." );
+    Dollars_2.arg( 3ul ).arg( 4ul ).arg( 7ul ).arg( 6ul );
     REQ( Dollars_2.get(), ==, std::string( "3$ 4ct, aber 7$ 6ct." ) );
   };
 
   SUB( Creation_of_all )
   {
-    NoPrintf Christian( BIBLE_OPENING_TMPL ); Christian.arg(First_Thing_A).arg(JWH);
-    NoPrintf Heretics; Heretics.set( BIBLE_OPENING_TMPL ).arg(First_Thing_B).arg(ATHEIST);
-    REQ(  Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
-    REQ(  Heretics.get(),  !=, std::string( BIBLE_OPENING_LINES ) );
+    NoPrintf Christian( BIBLE_OPENING_TMPL );
+    Christian.arg( First_Thing_A ).arg( JWH );
+    NoPrintf Heretics;
+    Heretics.set( BIBLE_OPENING_TMPL ).arg( First_Thing_B ).arg( ATHEIST );
+    REQ( Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
+    REQ( Heretics.get(), !=, std::string( BIBLE_OPENING_LINES ) );
   };
 }
 
 
 // To test DATA
-DATA(GetFailedTests)
+DATA( GetFailedTests )
 {
   unsigned int failedTestCount = 0;
   std::cout << "-----------------------------" << std::endl;
   std::cout << "Failed tests:" << std::endl;
-  data->IterSons( [&failedTestCount] (const lightest::Data* item )
-    {
-      const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
-      if (test->GetFailed())
+  data->IterSons(
+      [ &failedTestCount ]( const lightest::Data* item )
       {
-        std::cout << " * " << test->GetName() << std::endl;
-        failedTestCount++;
-      }
-    }
-  ); // lambda-end
-  std::cout << failedTestCount << " test" << (failedTestCount > 1 ? "s" : "")
-            << " failed." << std::endl;
+        const lightest::DataSet* test = static_cast<const lightest::DataSet*>( item );
+        if( test->GetFailed() )
+        {
+          std::cout << " * " << test->GetName() << std::endl;
+          failedTestCount++;
+        }
+      } ); // lambda-end
+  std::cout << failedTestCount << " test" << ( failedTestCount > 1 ? "s" : "" ) << " failed." << std::endl;
   std::cout << "-----------------------------" << std::endl;
-  if (lightest::toOutput) {
+  if( lightest::toOutput )
+  {
     std::cout << "Now the overall report:" << std::endl;
   }
   return; // just for easy breakpoint setting while debugging failed tests.

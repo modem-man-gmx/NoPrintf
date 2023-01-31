@@ -1,13 +1,13 @@
 #ifndef NO_PRINTF_CLASS
 #define NO_PRINTF_CLASS
 
+#include <cstddef>
 #include <string>
 #include <vector>
-#include <cstddef>
 
 //namespace No {
 
-template <typename T>
+template<typename T>
 struct type2type
 {
   typedef T type; // dirty hack to teach g++ the template specialisation for methods
@@ -16,25 +16,25 @@ struct type2type
 class NoPrintf
 {
 public:
-  #if defined(NOPRINTF_CAN_OVERLOADED)
+#if defined( NOPRINTF_CAN_OVERLOADED )
   virtual
-  #endif
-  ~NoPrintf() {};
+#endif
+      ~NoPrintf() {};
 
   NoPrintf();
-  NoPrintf( NoPrintf&& other );        // move CTor
-  NoPrintf( NoPrintf const& other );   // copy CTor
-  NoPrintf( std::string&& str );       // string move/swap CTor
-  NoPrintf( std::string const& str );  // string CTor
-  NoPrintf( const char* txt );         // text pointer CTor
+  NoPrintf( NoPrintf&& other );       // move CTor
+  NoPrintf( NoPrintf const& other );  // copy CTor
+  NoPrintf( std::string&& str );      // string move/swap CTor
+  NoPrintf( std::string const& str ); // string CTor
+  NoPrintf( const char* txt );        // text pointer CTor
 
-public: // operators
-  NoPrintf& operator=( NoPrintf&& other );      // move assignment
-  NoPrintf& operator=( NoPrintf const& other ); // copy assignment
+public:                                           // operators
+  NoPrintf&   operator=( NoPrintf&& other );      // move assignment
+  NoPrintf&   operator=( NoPrintf const& other ); // copy assignment
   std::string operator=( const NoPrintf& lhs ) const;
-  NoPrintf& operator+=( const NoPrintf& rhs );
-  NoPrintf& operator+=( const std::string& rhs );
-  NoPrintf& operator+=( const char* rhs );
+  NoPrintf&   operator+=( const NoPrintf& rhs );
+  NoPrintf&   operator+=( const std::string& rhs );
+  NoPrintf&   operator+=( const char* rhs );
 
 public: // further public methods
   void init();
@@ -42,9 +42,9 @@ public: // further public methods
   //void trim();
   //void cut(siz_t max);
 
-  NoPrintf& set( const std::string& str );
-  NoPrintf& append( const std::string& str );
-  NoPrintf& put();
+  NoPrintf&   set( const std::string& str );
+  NoPrintf&   append( const std::string& str );
+  NoPrintf&   put();
   std::string get() const;
 
   //template<typename T, typename fake=void>
@@ -52,24 +52,21 @@ public: // further public methods
   NoPrintf& arg( const T& val )
   {
     std::string collect;
-    if( val<0 ) { return this->arg( collect_int( val * -1, collect, true ) ); }
-    else        { return this->arg( collect_int( val, collect ) ); };
+    if( val < 0 ) { return this->arg( collect_int( val * -1, collect, true ) ); }
+    else { return this->arg( collect_int( val, collect ) ); };
   }
 
   //template<typename fake>
-  NoPrintf& arg(const std::string& str)
+  NoPrintf& arg( const std::string& str )
   {
-    m_args.emplace(m_args.end(), std::move(str));
+    m_args.emplace( m_args.end(), std::move( str ) );
     return *this;
   };
 
   //template<typename fake>
   NoPrintf& arg( const char* txt )
   {
-    if( nullptr != txt )
-    {
-      return this->arg( std::string(txt) );
-    }
+    if( nullptr != txt ) { return this->arg( std::string( txt ) ); }
     return *this;
   };
 
@@ -85,7 +82,7 @@ private:
   std::string& collect_int( unsigned long int uVal, std::string& buffer, bool Minus = false );
 
 private:
-  std::string m_str;
+  std::string              m_str;
   std::vector<std::string> m_args;
 };
 
