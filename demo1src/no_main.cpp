@@ -45,7 +45,11 @@ int main()
   NoPrintf( "Static $1, $2, $3" ).arg( "erstes" ).arg( "zweites" ).arg( "drittes" ).put();
 
   NoPrintf Arguments1;
-  Arguments1.set( "1.) A String:$1 and an integer=$2, $3 are values." ).arg( "string" ).arg( -123456789L ).arg( 123456789ul ).put();
+  Arguments1.set( "1.) A String:$1 and an integer=$2, $3 are values." )
+      .arg( "string" )
+      .arg( -123456789L )
+      .arg( 123456789ul )
+      .put();
 
   NoPrintf Arguments2( "2.) A String:$1 and an integer=$2, $3 are values." );
   Arguments2.arg( "string" ).arg( -123L ).arg( 456ul ).put();

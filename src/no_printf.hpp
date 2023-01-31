@@ -52,14 +52,8 @@ public: // further public methods
   NoPrintf& arg( const T& val )
   {
     std::string collect;
-    if( val < 0 )
-    {
-      return this->arg( collect_int( val * -1, collect, true ) );
-    }
-    else
-    {
-      return this->arg( collect_int( val, collect ) );
-    };
+    if( val < 0 ) { return this->arg( collect_int( val * -1, collect, true ) ); }
+    else { return this->arg( collect_int( val, collect ) ); };
   }
 
   //template<typename fake>
@@ -72,10 +66,7 @@ public: // further public methods
   //template<typename fake>
   NoPrintf& arg( const char* txt )
   {
-    if( nullptr != txt )
-    {
-      return this->arg( std::string( txt ) );
-    }
+    if( nullptr != txt ) { return this->arg( std::string( txt ) ); }
     return *this;
   };
 

@@ -117,7 +117,8 @@ NoPrintf& NoPrintf::set( const std::string& str )
 // minimum compiler: gnu++11 or C++14, to have RVO (return value optimisation)
 std::string NoPrintf::get() const
 {
-  std::string work( m_str ); // ToDo: do not work on a string, just use a growing list of iterators pointing to the elements, then spool out the list-refrences?
+  // ToDo: do not work on a string, just use a growing list of iterators pointing to the elements, then spool out the list-refrences?
+  std::string work( m_str );
 
   size_t offs = work.find( '$' );
   while( std::string::npos != offs && work.length() > offs )
@@ -192,8 +193,7 @@ NoPrintf& NoPrintf::operator+=( const std::string& rhs )
 
 NoPrintf& NoPrintf::operator+=( const char* rhs )
 {
-  if( rhs )
-    m_str += std::string( rhs );
+  if( rhs ) m_str += std::string( rhs );
   return *this;
 }
 
@@ -201,10 +201,7 @@ NoPrintf& NoPrintf::operator+=( const char* rhs )
 // a hopefully smaller and faster implementation compared with ltoa() and to_string()
 std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus )
 {
-  if( uVal == 0 )
-  {
-    buffer = "0";
-  }
+  if( uVal == 0 ) { buffer = "0"; }
   else
   {
     while( uVal != 0 )
@@ -212,10 +209,7 @@ std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer,
       buffer.push_back( '0' + ( uVal % 10 ) );
       uVal /= 10;
     }
-    if( Minus )
-    {
-      buffer.push_back( '-' );
-    }
+    if( Minus ) { buffer.push_back( '-' ); }
     std::reverse( buffer.begin(), buffer.end() );
   }
   return buffer;
