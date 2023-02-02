@@ -85,7 +85,7 @@ info:
 
 check: clean unittest
 	chmod +x $(MyUnitTExe)
-	./$(MyUnitTExe) && echo "unit tests OK." || echo "UNIT TESTS FAILED!"
+	./$(MyUnitTExe) && echo "unit tests OK."
 
 distcheck: exe
 	@echo "nothing useful implemented here, so we just see, if the Demo works"
@@ -93,5 +93,5 @@ distcheck: exe
 	./$(MyDemoExe)
 
 stylecheck:
-	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || echo "Style Guide violation, pls. run clang-format with my .clang-format file. No merge acceptable!"
+	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
 
