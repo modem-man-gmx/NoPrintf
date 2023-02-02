@@ -388,9 +388,18 @@ TEST( Handling_Numbers_in_DotArg )
 
   SUB( Numerical_long )
   {
-    int               a = 0, b = 1, c = -1;
+    long              a = 0L, b = 1L, c = -1L;
     char              Topic = 'a';
     std::stringstream Required;
+
+    std::cout << "int32_t min() : " << std::numeric_limits<int32_t>::min() << std::endl;
+    std::cout << "int32_t max() : " << std::numeric_limits<int32_t>::max() << std::endl;
+    std::cout << "int     min() : " << std::numeric_limits<int>::min() << std::endl;
+    std::cout << "int     max() : " << std::numeric_limits<int>::max() << std::endl;
+    std::cout << "signed  min() : " << std::numeric_limits<signed int>::min() << std::endl;
+    std::cout << "signed  max() : " << std::numeric_limits<signed int>::max() << std::endl;
+    std::cout << "long    min() : " << std::numeric_limits<long>::min() << std::endl;
+    std::cout << "long    max() : " << std::numeric_limits<long>::max() << std::endl;
 
     Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
     REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
@@ -436,7 +445,7 @@ TEST( Handling_Numbers_in_DotArg )
     a = std::numeric_limits<int32_t>::min();
     b = std::numeric_limits<int32_t>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
 
     // unsigned short values must fit
     Required.str( std::string() );
@@ -464,14 +473,14 @@ TEST( Handling_Numbers_in_DotArg )
     a = std::numeric_limits<signed int>::min();
     b = std::numeric_limits<signed int>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
 
     // unspecified (compiler preset) int values must fit
     Required.str( std::string() );
     a = std::numeric_limits<int>::min();
     b = std::numeric_limits<int>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
 
     if( std::numeric_limits<long>::max() == std::numeric_limits<unsigned long>::max() &&
         std::numeric_limits<long>::min() == std::numeric_limits<unsigned long>::min() )
