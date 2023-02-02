@@ -53,8 +53,8 @@ public: // further public methods
   NoPrintf& arg( const T& val, int width = INT_MIN )
   {
     std::string collect;
-    if( val < 0 ) { return this->arg( collect_int( val * -1, collect, true, width ) ); }
-    else { return this->arg( collect_int( val, collect, false, width ) ); };
+    if( val < 0 ) { return this->arg( collect_int( static_cast<unsigned long int>( val * -1 ), collect, true, width ) ); }
+    else { return this->arg( collect_int( static_cast<unsigned long int>( val ), collect, false, width ) ); };
   }
 
   NoPrintf& arg( const std::string& str, int width = 0, char fillchr = ' ' )

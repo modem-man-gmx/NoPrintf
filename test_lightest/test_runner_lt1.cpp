@@ -392,15 +392,6 @@ TEST( Handling_Numbers_in_DotArg )
     char              Topic = 'a';
     std::stringstream Required;
 
-    std::cout << "int32_t min() : " << std::numeric_limits<int32_t>::min() << std::endl;
-    std::cout << "int32_t max() : " << std::numeric_limits<int32_t>::max() << std::endl;
-    std::cout << "int     min() : " << std::numeric_limits<int>::min() << std::endl;
-    std::cout << "int     max() : " << std::numeric_limits<int>::max() << std::endl;
-    std::cout << "signed  min() : " << std::numeric_limits<signed int>::min() << std::endl;
-    std::cout << "signed  max() : " << std::numeric_limits<signed int>::max() << std::endl;
-    std::cout << "long    min() : " << std::numeric_limits<long>::min() << std::endl;
-    std::cout << "long    max() : " << std::numeric_limits<long>::max() << std::endl;
-
     Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
     REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
 
@@ -445,7 +436,7 @@ TEST( Handling_Numbers_in_DotArg )
     a = std::numeric_limits<int32_t>::min();
     b = std::numeric_limits<int32_t>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
+    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unsigned short values must fit
     Required.str( std::string() );
@@ -473,14 +464,14 @@ TEST( Handling_Numbers_in_DotArg )
     a = std::numeric_limits<signed int>::min();
     b = std::numeric_limits<signed int>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
+    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unspecified (compiler preset) int values must fit
     Required.str( std::string() );
     a = std::numeric_limits<int>::min();
     b = std::numeric_limits<int>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
-    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() ); // failing on ubuntu64, why??
+    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     if( std::numeric_limits<long>::max() == std::numeric_limits<unsigned long>::max() &&
         std::numeric_limits<long>::min() == std::numeric_limits<unsigned long>::min() )
@@ -548,7 +539,16 @@ TEST( Handling_aligned_numbers )
   int e = 1;
   int f = 1234567;
   int g = std::numeric_limits<int>::max();
-
+  /*
+  std::cout << "int32_t min() : " << std::numeric_limits<int32_t>::min() << std::endl;
+  std::cout << "int32_t max() : " << std::numeric_limits<int32_t>::max() << std::endl;
+  std::cout << "int     min() : " << std::numeric_limits<int>::min() << std::endl;
+  std::cout << "int     max() : " << std::numeric_limits<int>::max() << std::endl;
+  std::cout << "signed  min() : " << std::numeric_limits<signed int>::min() << std::endl;
+  std::cout << "signed  max() : " << std::numeric_limits<signed int>::max() << std::endl;
+  std::cout << "long    min() : " << std::numeric_limits<long>::min() << std::endl;
+  std::cout << "long    max() : " << std::numeric_limits<long>::max() << std::endl;
+  */
   SUB( Align_default_no_filling )
   {
     char Required[128];
