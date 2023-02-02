@@ -6,6 +6,10 @@
 #include "no_printf.hpp"
 //#define __FILE__ "test.cpp"
 
+#ifndef DIM
+#define DIM(a) (sizeof(a)/sizeof(a[0]))
+#endif
+
 
 CONFIG( Configurations )
 {
@@ -84,6 +88,42 @@ TEST( Can_create_Empty_Strings )
   };
 
 }; // end-of TEST(Can_create_Empty_Strings)
+
+
+TEST( Handling_bad_placeholders )
+{
+  SUB( detect_missing_holders1 )
+  {
+    const char Required[] = "Bad_1=<invalid>?";
+    NoPrintf Actual( "Bad_1=$1?" ); // ignore needed Actual.arg(123);
+    REQ( Actual.get(), ==, std::string( Required ) );
+  };
+
+  SUB( detect_missing_holders1_2_3 )
+  {
+    const char Required[] = "Bad_1=<invalid>, bad2=<invalid>, more bad=<invalid>?";
+    NoPrintf Actual( "Bad_1=$1, bad2=$2, more bad=$3?" ); // ignore needed Actual.arg(123);
+    REQ( Actual.get(), ==, std::string( Required ) );
+  };
+
+  SUB( detect_missing_holders2_to_3 )
+  {
+    const char Required[] = "Bad_1=123, bad2=<invalid>, more bad=<invalid>?";
+    NoPrintf Actual( "Bad_1=$1, bad2=$2, more bad=$3?" );
+    Actual.arg(123);
+    REQ( Actual.get(), ==, std::string( Required ) );
+  };
+
+  SUB( detect_jumped_holder9 )
+  {
+    const char Required[] = "Bad_1=123, bad2=<invalid>, good_again=456!";
+    const char Assumed[] = "Bad_1=123, bad2=456, good_again=789!";
+    NoPrintf Actual( "Bad_1=$1, bad2=$9, good_again=$2!" );
+    Actual.arg(123).arg(456).arg(789);
+    REQ( Actual.get(), !=, std::string( Assumed ) );
+    REQ( Actual.get(), ==, std::string( Required ) );
+  };
+};
 
 
 TEST( Handling_Numbers_in_DotArg )
@@ -472,6 +512,93 @@ TEST( Handling_Numbers_in_DotArg )
   };
 
 }; // end-of TEST(Handling_Numbers_in_DotArg)
+
+/* a test does not work like a SUB
+TEST( Check_Some_printf )
+{
+  int c = -1;
+  int d = 0;
+  char Required[128];
+
+  SUB( Align_default )
+  {
+    snprintf( Required, DIM(Required), "A) Minus1_c=%d, Zero_d=%d.", c, d );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( std::string( Required ), ==, std::string( "A) Minus1_c=-1, Zero_d=0." ) );
+  };
+}
+*/
+
+
+TEST( Handling_aligned_numbers )
+{
+  int a = std::numeric_limits<int>::min();
+  int b = -654321;
+  int c = -1;
+  int d = 0;
+  int e = 1;
+  int f = 1234567;
+  int g = std::numeric_limits<int>::max();
+
+  SUB( Align_default_no_filling )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "A) Sml_a=%d, Minus_b=%d, Minus1_c=%d, Zero_d=%d, One_e=%d, F_f=%d, Big_g=%d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "A) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a ).arg( b ).arg(c).arg(d).arg(e).arg(f).arg(g).get(), ==, std::string( Required ) );
+  };
+
+  SUB( Align_0_no_filling_zero_dropped )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "B) Sml_a=%.0d, Minus_b=%.0d, Minus1_c=%.0d, Zero_d=%.0d, One_e=%.0d, F_f=%.0d, Big_g=%.0d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "B) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,0 ).arg( b,0 ).arg(c,0).arg(d,0).arg(e,0).arg(f,0).arg(g,0).get(), ==, std::string( Required ) );
+  };
+
+  SUB( Align_minus1_has_no_effect )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "C) Sml_a=%-1d, Minus_b=%-1d, Minus1_c=%-1d, Zero_d=%-1d, One_e=%-1d, F_f=%-1d, Big_g=%-1d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "C) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,-1 ).arg( b,-1 ).arg(c,-1).arg(d,-1).arg(e,-1).arg(f,-1).arg(g,-1).get(), ==, std::string( Required ) );
+  };
+
+  SUB( Align_minus7_leftalign_postpend_upto7_spaces )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "D) Sml_a=%-7d, Minus_b=%-7d, Minus1_c=%-7d, Zero_d=%-7d, One_e=%-7d, F_f=%-7d, Big_g=%-7d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "D) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,-7 ).arg( b,-7 ).arg(c,-7).arg(d,-7).arg(e,-7).arg(f,-7).arg(g,-7).get(), ==, std::string( Required ) );
+  };
+
+  SUB( Align_plus1_has_no_effect )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "E) Sml_a=%1d, Minus_b=%1d, Minus1_c=%1d, Zero_d=%1d, One_e=%1d, F_f=%1d, Big_g=%1d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "E) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,1 ).arg( b,1 ).arg(c,1).arg(d,1).arg(e,1).arg(f,1).arg(g,1).get(), ==, std::string( Required ) );
+  };
+
+  SUB( Align_plus07_rightalign_prepend_upto7_zeroes ) // does prepend '0000' up to 7 times
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "F) Sml_a=%07d, Minus_b=%07d, Minus1_c=%07d, Zero_d=%07d, One_e=%07d, F_f=%07d, Big_g=%07d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "F) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
+  };
+
+/* currently no syntax for right-align and space padding
+  SUB( Align_plus_space7 )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "G) Sml_a=%7d, Minus_b=%7d, Minus1_c=%7d, Zero_d=%7d, One_e=%7d, F_f=%7d, Big_g=%7d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "G) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
+  };
+*/
+
+} // End-of TEST( Handling_aligned_numbers )
 
 
 #define JOHANNES_1_1a "Im Anfang war das Wort, und das Wort war bei Gott, und das Wort war Gott."

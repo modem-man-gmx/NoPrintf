@@ -3,7 +3,9 @@
 #include <cstring>
 
 #ifdef DEBUG // only for testing
-#  include <iostream>
+#  include <ostream> // endl
+#  include <iostream> // cerr
+//#  include <signal.h> // only for debugging and not needed on all platforms
 #endif // DEBUG
 
 #include "no_printf.hpp"
@@ -83,10 +85,13 @@ NoPrintf& NoPrintf::operator=( NoPrintf const& other ) // copy assignment
 // ----------- impl ---------------
 
 
-void NoPrintf::init() // single '$' sign at offset 0 for '$$'
+void NoPrintf::init()
 {
-  m_args.reserve( 10 );
+  m_args.reserve( 1+1+9 );
   m_args.clear();
+  // a failure hint "<invalid>" offset 0 for '$$'
+  m_args.emplace( m_args.end(), std::move( std::string( "<invalid>" ) ) ); // for non-existing $x indices
+  // single '$' sign at offset 1 for '$$'
   m_args.emplace( m_args.end(), std::move( std::string( "$" ) ) ); // single '$' sign at offset 0 for '$$'
 }
 
@@ -123,8 +128,12 @@ std::string NoPrintf::get() const
   size_t offs = work.find( '$' );
   while( std::string::npos != offs && work.length() > offs )
   {
+    //#error "work.replace() invalidates the offset and perhaps the length"
     char   placehold_chr = work[ offs + 1 ];
-    size_t placehold_idx = placehold_chr - '0';
+    size_t placehold_idx = 1 + placehold_chr - '0'; // $$ -> idx 1, $1 -> idx 2
+    if( placehold_idx >= m_args.size() ) // -> set to "<invalid>"
+    { placehold_idx = 0;
+    }
 
     // if you feel this could better be an if(range1)-elif(range2)-endif construct, think of easy extension to $0, $a..$z. If you still ... do benchmarks.
     switch( placehold_chr )
@@ -145,7 +154,9 @@ std::string NoPrintf::get() const
       case '8': // fallthrough
       case '9':
       {
+        //std::cerr << "Work before:\"" << work << "\", len=" << work.length() << ", idx =" << placehold_idx << std::endl;
         work.replace( offs, 2, m_args[ placehold_idx ] );
+        //std::cerr << "Work after :\"" << work << "\", len=" << work.length() << ", offs=" << offs << std::endl;
         offs += m_args[ placehold_idx ].length();
       };
       break;
@@ -199,18 +210,60 @@ NoPrintf& NoPrintf::operator+=( const char* rhs )
 
 
 // a hopefully smaller and faster implementation compared with ltoa() and to_string()
-std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus )
+// all values handled as positive long unsigned, the Minus is just an extra flag
+// width: INT_MIN (default) : do not use format-fillup or cut, same as if(Minus) {printf("-");} printf("%lu"),uVal);
+// width: positive value    : use right align and prefill with 0000. Same as if(Minus) {printf("-");} printf("%.7lu"),uVal);
+// width: negative value    : use left  align and postfill with ' '. Same as if(Minus) {printf("-");} printf("%-7lu"),uVal);
+// width: 0                 : just suppress value 0. Same as                 if(Minus) {printf("-");} printf("%.0lu"),uVal);
+std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus, int width )
 {
-  if( uVal == 0 ) { buffer = "0"; }
-  else
+  bool bRightAlign = ( width>0 ) ? true : false;
+  bool bLeftAlign=false;
+  if( width>INT_MIN && width<0 )
+  {
+    bLeftAlign = true;
+    width *= -1;
+  }
+  int filling = width;
+
+  if( 0lu==uVal && 0==width )  // emulate printf("%.0ld"),uVal)
+  { buffer.clear();
+    return buffer;
+  }
+  else if( 0lu==uVal )  // not yet return, format filling could take place!
+  { buffer = "0";
+    filling--;
+  }
+
   {
     while( uVal != 0 )
     {
       buffer.push_back( '0' + ( uVal % 10 ) );
       uVal /= 10;
+      filling--;
     }
-    if( Minus ) { buffer.push_back( '-' ); }
-    std::reverse( buffer.begin(), buffer.end() );
+
+    if( Minus )
+    {
+      filling--;
+    }
+
+    if( bRightAlign && filling>0 )
+    {
+      buffer.append( filling, '0' );
+    }
+
+    if( Minus )
+    {
+      buffer.push_back( '-' );
+    }
   }
+  std::reverse( buffer.begin(), buffer.end() );
+
+  if( bLeftAlign && filling>0 )
+  {
+    buffer.append( filling, ' ' );
+  }
+
   return buffer;
 }
