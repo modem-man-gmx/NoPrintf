@@ -1,8 +1,8 @@
 #ifndef NO_PRINTF_CLASS
 #define NO_PRINTF_CLASS
 
-#include <cstddef>
 #include <climits>
+#include <cstddef>
 #include <string>
 #include <vector>
 

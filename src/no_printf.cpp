@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#ifdef DEBUG // only for testing
-#  include <ostream> // endl
+#ifdef DEBUG          // only for testing
 #  include <iostream> // cerr
+#  include <ostream>  // endl
 //#  include <signal.h> // only for debugging and not needed on all platforms
 #endif // DEBUG
 
@@ -87,7 +87,7 @@ NoPrintf& NoPrintf::operator=( NoPrintf const& other ) // copy assignment
 
 void NoPrintf::init()
 {
-  m_args.reserve( 1+1+9 );
+  m_args.reserve( 1 + 1 + 9 );
   m_args.clear();
   // a failure hint "<invalid>" offset 0 for '$$'
   m_args.emplace( m_args.end(), std::move( std::string( "<invalid>" ) ) ); // for non-existing $x indices
@@ -131,8 +131,9 @@ std::string NoPrintf::get() const
     //#error "work.replace() invalidates the offset and perhaps the length"
     char   placehold_chr = work[ offs + 1 ];
     size_t placehold_idx = 1 + placehold_chr - '0'; // $$ -> idx 1, $1 -> idx 2
-    if( placehold_idx >= m_args.size() ) // -> set to "<invalid>"
-    { placehold_idx = 0;
+    if( placehold_idx >= m_args.size() )            // -> set to "<invalid>"
+    {
+      placehold_idx = 0;
     }
 
     // if you feel this could better be an if(range1)-elif(range2)-endif construct, think of easy extension to $0, $a..$z. If you still ... do benchmarks.
@@ -217,21 +218,23 @@ NoPrintf& NoPrintf::operator+=( const char* rhs )
 // width: 0                 : just suppress value 0. Same as                 if(Minus) {printf("-");} printf("%.0lu"),uVal);
 std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus, int width )
 {
-  bool bRightAlign = ( width>0 ) ? true : false;
-  bool bLeftAlign=false;
-  if( width>INT_MIN && width<0 )
+  bool bRightAlign = ( width > 0 ) ? true : false;
+  bool bLeftAlign = false;
+  if( width > INT_MIN && width < 0 )
   {
     bLeftAlign = true;
     width *= -1;
   }
   int filling = width;
 
-  if( 0lu==uVal && 0==width )  // emulate printf("%.0ld"),uVal)
-  { buffer.clear();
+  if( 0lu == uVal && 0 == width ) // emulate printf("%.0ld"),uVal)
+  {
+    buffer.clear();
     return buffer;
   }
-  else if( 0lu==uVal )  // not yet return, format filling could take place!
-  { buffer = "0";
+  else if( 0lu == uVal ) // not yet return, format filling could take place!
+  {
+    buffer = "0";
     filling--;
   }
 
@@ -243,27 +246,15 @@ std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer,
       filling--;
     }
 
-    if( Minus )
-    {
-      filling--;
-    }
+    if( Minus ) { filling--; }
 
-    if( bRightAlign && filling>0 )
-    {
-      buffer.append( filling, '0' );
-    }
+    if( bRightAlign && filling > 0 ) { buffer.append( filling, '0' ); }
 
-    if( Minus )
-    {
-      buffer.push_back( '-' );
-    }
+    if( Minus ) { buffer.push_back( '-' ); }
   }
   std::reverse( buffer.begin(), buffer.end() );
 
-  if( bLeftAlign && filling>0 )
-  {
-    buffer.append( filling, ' ' );
-  }
+  if( bLeftAlign && filling > 0 ) { buffer.append( filling, ' ' ); }
 
   return buffer;
 }

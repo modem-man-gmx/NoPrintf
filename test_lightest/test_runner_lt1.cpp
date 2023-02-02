@@ -7,7 +7,7 @@
 //#define __FILE__ "test.cpp"
 
 #ifndef DIM
-#define DIM(a) (sizeof(a)/sizeof(a[0]))
+#  define DIM( a ) ( sizeof( a ) / sizeof( a[ 0 ] ) )
 #endif
 
 
