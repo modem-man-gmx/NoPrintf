@@ -93,5 +93,5 @@ distcheck: exe
 	./$(MyDemoExe)
 
 stylecheck:
-	@clang-format -n -W $(AllSrc) && echo "Style Guide check OK." || echo "Style Guide violation, pls. run clang-format with my .clang-format file. No merge acceptable!"
+	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || echo "Style Guide violation, pls. run clang-format with my .clang-format file. No merge acceptable!"
 
