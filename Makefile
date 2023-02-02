@@ -94,4 +94,3 @@ distcheck: exe
 
 stylecheck:
 	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
-
