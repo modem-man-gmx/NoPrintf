@@ -18,6 +18,9 @@
 #define NOPF_USE_INT64 0
 #define NOPF_USE_LONGLONG 0
 
+#define NOPF_NUMERICAL_LEFTALIGN_FILLCHAR ' ' // do not change this to numericals, would get postpending '0000' so number could get wrong
+#define NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ' '  // printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
+
 // The next type has to be defined and has to be
 // the biggest available type of this list:
 // - unsigned short
@@ -26,9 +29,6 @@
 // - unsigned long long
 // if you choose a smaller one, you will get errors
 // using .arg( too_big_type )
-
-// ULLONG_MAX   __UINT64_MAX__
-
 #if defined( NOPF_USE_INT64 ) && (NOPF_USE_INT64>0) && \
     defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG>0) && \
     defined( ULLONG_MAX ) && defined( __UINT64_MAX__ ) && (ULLONG_MAX >= __UINT64_MAX__)

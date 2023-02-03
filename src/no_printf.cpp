@@ -247,14 +247,23 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
     }
 
     if( Minus ) { filling--; }
-
-    if( bRightAlign && filling > 0 ) { buffer.append( filling, '0' ); }
-
+    // with space-like '   ' padding, the minus is directly connected to the digits. "1st padding, then minus, then digits"
+    // or reverse build like here:  "1st digits, then minus, then padding -> then reversed"
+#   if defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR!='0' )
     if( Minus ) { buffer.push_back( '-' ); }
+#   endif
+
+    if( bRightAlign && filling > 0 ) { buffer.append( filling, NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ); }
+
+#   if defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR=='0' )
+    // with numerical '0000' padding, the 0000 is directly connected to the digits. "1st minus, then 0 padding, then digits"
+    // or reverse build like here:  "1st digits, then 0 padding, then minus -> then reversed"
+    if( Minus ) { buffer.push_back( '-' ); }
+#   endif
   }
   std::reverse( buffer.begin(), buffer.end() );
 
-  if( bLeftAlign && filling > 0 ) { buffer.append( filling, ' ' ); }
+  if( bLeftAlign && filling > 0 ) { buffer.append( filling, NOPF_NUMERICAL_LEFTALIGN_FILLCHAR ); }
 
   return buffer;
 }
