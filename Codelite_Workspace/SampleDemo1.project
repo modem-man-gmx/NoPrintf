@@ -6,6 +6,7 @@
     </Plugin>
   </Plugins>
   <VirtualDirectory Name="inc">
+    <File Name="../inc/no_printf_customizing.h"/>
     <File Name="../src/no_printf.hpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="doc">
