@@ -38,9 +38,9 @@ TEST( Handling_Check )
 
   SUB( Align_default_no_filling )
   {
-    char Required[128];
-    snprintf( Required, DIM(Required), "A) Sml_a=%d, Big_g=%d.", a, b );
-    Required[ DIM(Required)-1 ] = '\0';
+    char Required[ 128 ];
+    snprintf( Required, DIM( Required ), "A) Sml_a=%d, Big_g=%d.", a, b );
+    Required[ DIM( Required ) - 1 ] = '\0';
     REQ( NoPrintf( "A) Sml_a=$1, Big_g=$2." ).arg( a ).arg( b ).get(), ==, std::string( Required ) );
   };
 };

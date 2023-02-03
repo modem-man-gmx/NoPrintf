@@ -1,12 +1,12 @@
 #ifndef NO_PRINTF_CLASS
 #define NO_PRINTF_CLASS
 
+#include <no_printf_customizing.h>
+
 #include <climits>
 #include <cstddef>
 #include <string>
 #include <vector>
-
-#include <no_printf_customizing.h>
 
 //namespace No {
 
@@ -61,7 +61,7 @@ public: // further public methods
       // number type room, but the result will only fit in unsigned same number type room.
       // so we do a (x - 1 + 1) operation to trick the C++ type system, trusting the compiler to not
       // really doing this operation...
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( (val+1) * -1 ) + 1, collect, true, width ) );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
     }
     else { return this->arg( collect_number( static_cast<unsigned long int>( val ), collect, false, width ) ); };
   }
