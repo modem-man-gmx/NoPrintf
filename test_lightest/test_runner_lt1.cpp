@@ -603,6 +603,7 @@ TEST( Handling_aligned_numbers )
     REQ( NoPrintf( "E) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,1 ).arg( b,1 ).arg(c,1).arg(d,1).arg(e,1).arg(f,1).arg(g,1).get(), ==, std::string( Required ) );
   };
 
+#if defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR=='0' )
   SUB( Align_plus07_rightalign_prepend_upto7_zeroes ) // does prepend '0000' up to 7 times
   {
     char Required[128];
@@ -610,6 +611,15 @@ TEST( Handling_aligned_numbers )
     Required[ DIM(Required)-1 ] = '\0';
     REQ( NoPrintf( "F) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
   };
+#elif defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR==' ' )
+  SUB( Align_plus07_rightalign_prepend_upto7_zeroes ) // does prepend ' ' up to 7 times
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "F) Sml_a=%7d, Minus_b=%7d, Minus1_c=%7d, Zero_d=%7d, One_e=%7d, F_f=%7d, Big_g=%7d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "F) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
+  };
+#endif
 
 /* currently no syntax for right-align and space padding
   SUB( Align_plus_space7 )
