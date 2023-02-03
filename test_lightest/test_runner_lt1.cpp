@@ -31,6 +31,20 @@ TEST(TestTimerMacros)
 }
 */
 
+TEST( Handling_Check )
+{
+  int a = std::numeric_limits<int>::min();
+  int b = std::numeric_limits<int>::max();
+
+  SUB( Align_default_no_filling )
+  {
+    char Required[128];
+    snprintf( Required, DIM(Required), "A) Sml_a=%d, Big_g=%d.", a, b );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "A) Sml_a=$1, Big_g=$2." ).arg( a ).arg( b ).get(), ==, std::string( Required ) );
+  };
+};
+
 TEST( Default_NoPrintf_handling )
 {
   NoPrintf Default;

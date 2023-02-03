@@ -8,6 +8,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="../inc/no_printf_customizing.h"/>
     <File Name="../src/no_printf.hpp"/>
     <File Name="../src/no_printf.cpp"/>
     <File Name="../test_lightest/test_runner_lt1.cpp"/>

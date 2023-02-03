@@ -216,7 +216,7 @@ NoPrintf& NoPrintf::operator+=( const char* rhs )
 // width: positive value    : use right align and prefill with 0000. Same as if(Minus) {printf("-");} printf("%.7lu"),uVal);
 // width: negative value    : use left  align and postfill with ' '. Same as if(Minus) {printf("-");} printf("%-7lu"),uVal);
 // width: 0                 : just suppress value 0. Same as                 if(Minus) {printf("-");} printf("%.0lu"),uVal);
-std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer, bool Minus, int width )
+std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus, int width )
 {
   bool bRightAlign = ( width > 0 ) ? true : false;
   bool bLeftAlign = false;
@@ -227,7 +227,7 @@ std::string& NoPrintf::collect_int( unsigned long int uVal, std::string& buffer,
   }
   int filling = width;
 
-  if( 0lu == uVal && 0 == width ) // emulate printf("%.0ld"),uVal)
+  if( 0 == uVal && 0 == width ) // emulate printf("%.0ld"),uVal)
   {
     buffer.clear();
     return buffer;

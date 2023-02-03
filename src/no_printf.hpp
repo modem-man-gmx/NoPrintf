@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <no_printf_customizing.h>
+
 //namespace No {
 
 template<typename T>
@@ -53,8 +55,15 @@ public: // further public methods
   NoPrintf& arg( const T& val, int width = INT_MIN )
   {
     std::string collect;
-    if( val < 0 ) { return this->arg( collect_int( static_cast<unsigned long int>( val * -1 ), collect, true, width ) ); }
-    else { return this->arg( collect_int( static_cast<unsigned long int>( val ), collect, false, width ) ); };
+    if( val < 0 )
+    {
+      // because |INT_MIN| > INT_MAX, or in C: abs(INT_MIN)==INT_MAX+1, the conversion takes part in signed
+      // number type room, but the result will only fit in unsigned same number type room.
+      // so we do a (x - 1 + 1) operation to trick the C++ type system, trusting the compiler to not
+      // really doing this operation...
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( (val+1) * -1 ) + 1, collect, true, width ) );
+    }
+    else { return this->arg( collect_number( static_cast<unsigned long int>( val ), collect, false, width ) ); };
   }
 
   NoPrintf& arg( const std::string& str, int width = 0, char fillchr = ' ' )
@@ -75,12 +84,12 @@ public: // further public methods
   NoPrintf& arg( unsigned long int uVal, int width = INT_MIN )
   {
     std::string collect;
-    return this->arg( collect_int( uVal, collect, false, width ) );
+    return this->arg( collect_number( uVal, collect, false, width ) );
   };
 
 
 private:
-  std::string& collect_int( unsigned long int uVal, std::string& buffer, bool Minus = false, int width = INT_MIN );
+  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int width = INT_MIN );
 
 private:
   std::string              m_str;
