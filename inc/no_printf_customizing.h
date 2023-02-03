@@ -26,7 +26,15 @@
 // - unsigned long long
 // if you choose a smaller one, you will get errors
 // using .arg( too_big_type )
-#if defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG>0)
+
+// ULLONG_MAX   __UINT64_MAX__
+
+#if defined( NOPF_USE_INT64 ) && (NOPF_USE_INT64>0) && \
+    defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG>0) && \
+    defined( ULLONG_MAX ) && defined( __UINT64_MAX__ ) && (ULLONG_MAX >= __UINT64_MAX__)
+  // both defined: decide the bigger one
+  typedef unsigned long long BiggestNumerical_t;
+#elif defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG>0)
   typedef unsigned long long BiggestNumerical_t;
 #elif defined( NOPF_USE_INT64 ) && (NOPF_USE_INT64>0)
   typedef uint64_t BiggestNumerical_t;
