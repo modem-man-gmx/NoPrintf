@@ -540,7 +540,7 @@ TEST( Handling_Numbers_in_DotArg )
 
 
 #if defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
-  SUB( Numerical_long )
+  SUB( Numerical_long_long )
   {
     long long         a = 0LL, b = 1LL, c = -1LL;
     char              Topic = 'a';
@@ -590,7 +590,7 @@ TEST( Handling_Numbers_in_DotArg )
     b = std::numeric_limits<int32_t>::max();
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
-----
+
 #   if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
     // 64 bit unsigned values could fit to long long
     Required.str( std::string() );
@@ -608,7 +608,7 @@ TEST( Handling_Numbers_in_DotArg )
 #   else
     Topic += 2;
 #   endif // defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
-----
+
     // unsigned short values must fit
     Required.str( std::string() );
     a = std::numeric_limits<unsigned short>::min();
