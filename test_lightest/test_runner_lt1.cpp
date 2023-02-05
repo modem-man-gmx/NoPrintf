@@ -223,11 +223,14 @@ TEST( Handling_Numbers_in_DotArg )
     if( std::numeric_limits<short>::max() >= std::numeric_limits<uint32_t>::max()
      && std::numeric_limits<short>::min() <= std::numeric_limits<uint32_t>::min() )
     {
+#     if defined( SHRT_MAX ) && defined( UINT32_MAX ) && (SHRT_MAX>=UINT32_MAX)
       Required.str( std::string() );
       a = std::numeric_limits<uint32_t>::min();
       b = std::numeric_limits<uint32_t>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "f) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#     else // perhaps some overflow expectations testing?
+#     endif //defined( SHRT_MAX ) && defined( UINT32_MAX ) && (SHRT_MAX>=UINT32_MAX)
     }
     Topic++;
 
@@ -235,11 +238,14 @@ TEST( Handling_Numbers_in_DotArg )
     if( std::numeric_limits<short>::max() >= std::numeric_limits<int32_t>::max()
      && std::numeric_limits<short>::min() <= std::numeric_limits<int32_t>::min() )
     {
+#     if defined( SHRT_MAX ) && defined( INT32_MAX ) && (SHRT_MAX>=INT32_MAX)
       Required.str( std::string() );
       a = std::numeric_limits<int32_t>::min();
       b = std::numeric_limits<int32_t>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "g) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#     else // perhaps some overflow expectations testing?
+#     endif //defined( SHRT_MAX ) && defined( INT32_MAX ) && (SHRT_MAX>=INT32_MAX)
     }
     Topic++;
 
@@ -267,11 +273,14 @@ TEST( Handling_Numbers_in_DotArg )
     if( std::numeric_limits<short>::max() >= std::numeric_limits<unsigned int>::max() &&
         std::numeric_limits<short>::min() <= std::numeric_limits<unsigned int>::min() )
     {
+#     if defined( SHRT_MAX ) && defined( UINT_MAX ) && (SHRT_MAX>=UINT_MAX)
       Required.str( std::string() );
       a = std::numeric_limits<unsigned int>::min();
       b = std::numeric_limits<unsigned int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "j) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#     else // perhaps some overflow expectations testing?
+#     endif //defined( SHRT_MAX ) && defined( UINT_MAX ) && (SHRT_MAX>=UINT_MAX)
     }
     Topic++;
 
@@ -279,11 +288,14 @@ TEST( Handling_Numbers_in_DotArg )
     if( std::numeric_limits<short>::max() >= std::numeric_limits<signed int>::max() &&
         std::numeric_limits<short>::min() <= std::numeric_limits<signed int>::min() )
     {
+#     if defined( SHRT_MAX ) && defined( INT_MAX ) && (SHRT_MAX>=INT_MAX)
       Required.str( std::string() );
       a = std::numeric_limits<signed int>::min();
       b = std::numeric_limits<signed int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "k) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#     else // perhaps some overflow expectations testing?
+#     endif //defined( SHRT_MAX ) && defined( INT_MAX ) && (SHRT_MAX>=INT_MAX)
     }
     Topic++;
 
@@ -291,11 +303,14 @@ TEST( Handling_Numbers_in_DotArg )
     if( std::numeric_limits<short>::max() >= std::numeric_limits<int>::max()
      && std::numeric_limits<short>::min() <= std::numeric_limits<int>::min() )
     {
+#     if defined( SHRT_MAX ) && defined( INT_MAX ) && (SHRT_MAX>=INT_MAX)
       Required.str( std::string() );
       a = std::numeric_limits<int>::min();
       b = std::numeric_limits<int>::max();
       Required << Topic << ") Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "l) Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#     else // perhaps some overflow expectations testing?
+#     endif //defined( SHRT_MAX ) && defined( INT_MAX ) && (SHRT_MAX>=INT_MAX)
     }
     Topic++;
 
@@ -305,7 +320,7 @@ TEST( Handling_Numbers_in_DotArg )
 
   SUB( Numerical_integer )
   {
-    long              a = 0, b = 1, c = -1;
+    int               a = 0, b = 1, c = -1;
     char              Topic = 'a';
     std::stringstream Required;
 
@@ -369,8 +384,8 @@ TEST( Handling_Numbers_in_DotArg )
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "i) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    if( std::numeric_limits<int>::max() == std::numeric_limits<unsigned int>::max() &&
-        std::numeric_limits<int>::min() == std::numeric_limits<unsigned int>::min() )
+    if( std::numeric_limits<int>::max() >= std::numeric_limits<unsigned int>::max() &&
+        std::numeric_limits<int>::min() <= std::numeric_limits<unsigned int>::min() )
     {
       Required.str( std::string() );
       a = std::numeric_limits<unsigned int>::min();
@@ -395,8 +410,6 @@ TEST( Handling_Numbers_in_DotArg )
     b = std::numeric_limits<int>::max();
     Required << ++Topic << ") Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "l) Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
-
-    // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
   };
 
 
@@ -487,8 +500,8 @@ TEST( Handling_Numbers_in_DotArg )
     Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    if( std::numeric_limits<long>::max() == std::numeric_limits<unsigned long>::max() &&
-        std::numeric_limits<long>::min() == std::numeric_limits<unsigned long>::min() )
+    if( std::numeric_limits<long>::max() >= std::numeric_limits<unsigned long>::max() &&
+        std::numeric_limits<long>::min() <= std::numeric_limits<unsigned long>::min() )
     {
       Required.str( std::string() );
       a = std::numeric_limits<unsigned long>::min();
@@ -525,6 +538,158 @@ TEST( Handling_Numbers_in_DotArg )
     REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
   };
 
+
+#if defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
+  SUB( Numerical_long )
+  {
+    long long         a = 0LL, b = 1LL, c = -1LL;
+    char              Topic = 'a';
+    std::stringstream Required;
+
+    Required << Topic << ") Long A=" << a << ", B=" << b << ", C=" << c << ".";
+    REQ( NoPrintf( "a) Long A=$1, B=$2, C=$3." ).arg( a ).arg( b ).arg( c ).get(), ==, Required.str() );
+
+    // 8 bit unsigned values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<uint8_t>::min();
+    b = std::numeric_limits<uint8_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "b) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 8 bit signed values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int8_t>::min();
+    b = std::numeric_limits<int8_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "c) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 16 bit unsigned values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<uint16_t>::min();
+    b = std::numeric_limits<uint16_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "d) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 16 bit signed values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<int16_t>::min();
+    b = std::numeric_limits<int16_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "e) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 32 bit unsigned values must fit to long long
+    Required.str( std::string() );
+    a = std::numeric_limits<uint32_t>::min();
+    b = std::numeric_limits<uint32_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "f) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 32 bit signed values must fit to long long
+    Required.str( std::string() );
+    a = std::numeric_limits<int32_t>::min();
+    b = std::numeric_limits<int32_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "g) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+----
+#   if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
+    // 64 bit unsigned values could fit to long long
+    Required.str( std::string() );
+    a = std::numeric_limits<uint64_t>::min();
+    b = std::numeric_limits<uint64_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "h) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // 64 bit signed should must fit to long long
+    Required.str( std::string() );
+    a = std::numeric_limits<int64_t>::min();
+    b = std::numeric_limits<int64_t>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "i) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+#   else
+    Topic += 2;
+#   endif // defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
+----
+    // unsigned short values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<unsigned short>::min();
+    b = std::numeric_limits<unsigned short>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "j) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // signed short values must fit
+    Required.str( std::string() );
+    a = std::numeric_limits<signed short>::min();
+    b = std::numeric_limits<signed short>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "k) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // uint values must fit to long long
+    Required.str( std::string() );
+    a = std::numeric_limits<unsigned int>::min();
+    b = std::numeric_limits<unsigned int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    // if int is unsigned (unlikely) unsigned int values must fit
+    REQ( NoPrintf( "l) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    Required.str( std::string() );
+    a = std::numeric_limits<signed int>::min();
+    b = std::numeric_limits<signed int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "m) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    Required.str( std::string() );
+    a = std::numeric_limits<int>::min();
+    b = std::numeric_limits<int>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "n) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    Required.str( std::string() );
+    a = std::numeric_limits<unsigned long>::min();
+    b = std::numeric_limits<unsigned long>::max();
+    REQ( a, <, b );
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "o) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    Required.str( std::string() );
+    a = std::numeric_limits<signed long>::min();
+    b = std::numeric_limits<signed long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "p) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // unspecified long is for sure signed long
+    Required.str( std::string() );
+    a = std::numeric_limits<long>::min();
+    b = std::numeric_limits<long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "q) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
+    if( std::numeric_limits<long long>::max() >= std::numeric_limits<unsigned long long>::max() &&
+        std::numeric_limits<long long>::min() <= std::numeric_limits<unsigned long long>::min() )
+    {
+      Required.str( std::string() );
+      a = std::numeric_limits<unsigned long>::min();
+      b = std::numeric_limits<unsigned long>::max();
+      REQ( a, <, b );
+      Required << Topic << ") Long A=" << a << ", B=" << b << ".";
+      REQ( NoPrintf( "r) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+    }
+    Topic++;
+
+    Required.str( std::string() );
+    a = std::numeric_limits<signed long long>::min();
+    b = std::numeric_limits<signed long long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "s) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+
+    // unspecified long is for sure signed long
+    Required.str( std::string() );
+    a = std::numeric_limits<long long>::min();
+    b = std::numeric_limits<long long>::max();
+    Required << ++Topic << ") Long A=" << a << ", B=" << b << ".";
+    REQ( NoPrintf( "t) Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
+  };
+#endif //  defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
 }; // end-of TEST(Handling_Numbers_in_DotArg)
 
 /* a test does not work like a SUB
