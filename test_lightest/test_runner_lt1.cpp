@@ -96,7 +96,7 @@ TEST( Handling_Check )
     Required[ DIM( Required ) - 1 ] = '\0';
     REQ( NoPrintf( "A) Sml_a=$1, Big_g=$2." ).arg( a ).arg( b ).get(), ==, std::string( Required ) );
   };
-};
+}
 
 TEST( Default_NoPrintf_handling )
 {
@@ -190,7 +190,7 @@ TEST( Handling_bad_placeholders )
     REQ( Actual.get(), !=, std::string( Assumed ) );
     REQ( Actual.get(), ==, std::string( Required ) );
   };
-};
+}
 
 
 TEST( Handling_Numbers_in_DotArg )
@@ -822,7 +822,7 @@ TEST( Handling_Numbers_in_DotArg )
 
 
 #endif //  defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
-}; // end-of TEST(Handling_Numbers_in_DotArg)
+} // end-of TEST(Handling_Numbers_in_DotArg)
 
 
 TEST( Handling_aligned_numbers )
