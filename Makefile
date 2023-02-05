@@ -94,8 +94,8 @@ distcheck: exe
 	./$(MyDemoExe)
 
 stylecheck:
+	@clang-format --dry-run --output-replacements-xml $(AllSrc) >> $GITHUB_OUTPUT
 	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || exit 0
 
 style:
-	@clang-format --dry-run --output-replacements-xml $(AllSrc) > ./doc/stylecheck.xml
 	@clang-format -i --verbose $(AllSrc) && echo "Style Guide reformatting OK."
