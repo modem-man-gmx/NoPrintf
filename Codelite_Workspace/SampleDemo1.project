@@ -10,6 +10,7 @@
     <File Name="../src/no_printf.hpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="doc">
+    <File Name="../.github/workflows/c-cpp.yml"/>
     <File Name="../.clang-format"/>
     <File Name="../CONTRIBUTING.md"/>
     <File Name="../doc/README_STORY.md"/>
