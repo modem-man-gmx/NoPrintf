@@ -21,3 +21,8 @@ jobs:
       run: make check
     - name: make stylecheck
       run: make stylecheck
+
+    - name: "Read file contents"
+      uses: andstor/file-reader-action@v1
+      with:
+        path: "./stylecheck.xml"
