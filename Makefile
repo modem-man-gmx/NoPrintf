@@ -97,8 +97,11 @@ stylecheck:
 	@clang-format --version
 	@echo "Style Guide check dry run ..."
 	@clang-format -i --verbose --dry-run --output-replacements-xml $(AllSrc)
-	@echo "Style Guide check verify ..., but ignore result, because git has clang 14 and I have 11"
-	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || exit 0
+	@echo "Style Guide check verify ..."
+	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
+
+# ignore result, if git has clang 14 (ubuntu-latest / 2204) and I have 11 (MSyS2, ubuntu 2004): 
+# @clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || exit 0
 
 style:
 	@clang-format -i --verbose $(AllSrc) && echo "Style Guide reformatting OK."

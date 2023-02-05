@@ -42,7 +42,7 @@ AllowAllConstructorInitializersOnNextLine: true
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: InlineOnly
-AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLambdasOnASingleLine: Inline
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
