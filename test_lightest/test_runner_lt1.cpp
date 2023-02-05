@@ -10,73 +10,55 @@
 #  define DIM( a ) ( sizeof( a ) / sizeof( a[ 0 ] ) )
 #endif
 
-// ToDo: could be made of a template
+template<typename T>
+class TypeLimits
+{
+public:
+  TypeLimits<T>() {}
+  ~TypeLimits() {}
+  static const T min, max;
+};
+
+template<typename T>
+const T TypeLimits<T>::min( std::numeric_limits<T>::min() );
+template<typename T>
+const T TypeLimits<T>::max( std::numeric_limits<T>::max() );
+
+
 class Limits
 {
 public:
-  Limits()
-    // init fixed integer types
-    // 8 bit
-    : uint8_min( std::numeric_limits<uint8_t>::min() ), uint8_max( std::numeric_limits<uint8_t>::max() )
-    , int8_min( std::numeric_limits<int8_t>::min() ), int8_max( std::numeric_limits<int8_t>::max() )
-    // 16 bit
-    , uint16_min( std::numeric_limits<uint16_t>::min() ), uint16_max( std::numeric_limits<uint16_t>::max() )
-    , int16_min( std::numeric_limits<int16_t>::min() ), int16_max( std::numeric_limits<int16_t>::max() )
-    // 32 bit
-    , uint32_min( std::numeric_limits<uint32_t>::min() ), uint32_max( std::numeric_limits<uint32_t>::max() )
-    , int32_min( std::numeric_limits<int32_t>::min() ), int32_max( std::numeric_limits<int32_t>::max() )
-    // 64 bit
-#   if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
-    , uint64_min( std::numeric_limits<uint64_t>::min() ), uint64_max( std::numeric_limits<uint64_t>::max() )
-    , int64_min( std::numeric_limits<int64_t>::min() ), int64_max( std::numeric_limits<int64_t>::max() )
-#   endif //defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
-    // init fundamental integer types
-    // char, usually 1 byte / 8 bit. Defined as "at least 8 bit", commonly implemented mostly as 8 bit (https://en.cppreference.com/w/cpp/language/types)
-    , uchar_min( std::numeric_limits<unsigned char>::min() ), uchar_max( std::numeric_limits<unsigned char>::max() )
-    , char_min( std::numeric_limits<signed char>::min() ), char_max( std::numeric_limits<signed char>::max() )
-    // short, usually 2 byte / 16 bit. Defined as "at least 16 bit", commonly implemented mostly as 16 bit (https://en.cppreference.com/w/cpp/language/types)
-    , ushort_min( std::numeric_limits<unsigned short>::min() ), ushort_max( std::numeric_limits<unsigned short>::max() )
-    , short_min( std::numeric_limits<signed short>::min() ), short_max( std::numeric_limits<signed short>::max() )
-    // unspecified int, usually 2..4 byte / 16..32 bit. Defined as "at least 16 bit", often implemented as 32 bit (https://en.cppreference.com/w/cpp/language/types)
-    , uint_min( std::numeric_limits<unsigned int>::min() ), uint_max( std::numeric_limits<unsigned int>::max() )
-    , int_min( std::numeric_limits<signed int>::min() ), int_max( std::numeric_limits<signed int>::max() )
-    // long, usually 4..8 byte / 32..64 bit. Defined as "at least 32 bit", often implemented as 32 bit, except LP64 (https://en.cppreference.com/w/cpp/language/types)
-    , ulong_min( std::numeric_limits<unsigned long>::min() ), ulong_max( std::numeric_limits<unsigned long>::max() )
-    , long_min( std::numeric_limits<signed long>::min() ), long_max( std::numeric_limits<signed long>::max() )
-    // long long, usually 8 byte / 64 bit. Defined as "at least 64 bit", commonly implemented mostly as 64 bit (https://en.cppreference.com/w/cpp/language/types)
-#if defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
-    , ulonglong_min( std::numeric_limits<unsigned long long>::min() ), ulonglong_max( std::numeric_limits<unsigned long long>::max() )
-    , longlong_min( std::numeric_limits<signed long long>::min() ), longlong_max( std::numeric_limits<signed long long>::max() )
-#endif //defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
-  {}
-
+  Limits() {}
   ~Limits() {}
 
 public: // members
-    // fixed integer types
-    size_t uint8_min, uint8_max;
-    size_t int8_min, int8_max;
-    size_t uint16_min, uint16_max;
-    size_t int16_min, int16_max;
-    size_t uint32_min, uint32_max;
-    size_t int32_min, int32_max;
-#   if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
-    size_t uint64_min, uint64_max;
-    size_t int64_min, int64_max;
-#   endif //defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
-
-    // fundamental integer types
-    size_t uchar_min, uchar_max;
-    size_t char_min, char_max;
-    size_t ushort_min, ushort_max;
-    size_t short_min, short_max;
-    size_t uint_min, uint_max;
-    size_t int_min, int_max;
-    size_t ulong_min, ulong_max;
-    size_t long_min, long_max;
-#if defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
-    size_t ulonglong_min, ulonglong_max;
-    size_t longlong_min, longlong_max;
+  // fixed integer types
+  TypeLimits<uint8_t>  uint8;
+  TypeLimits<int8_t>   sint8;
+  TypeLimits<uint16_t> uint16;
+  TypeLimits<int16_t>  sint16;
+  TypeLimits<uint32_t> uint32;
+  TypeLimits<int32_t>  sint32;
+#if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
+  TypeLimits<uint64_t> uint64;
+  TypeLimits<int64_t>  sint64;
+#endif //defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
+  // fundamental integer types
+  TypeLimits<unsigned char> uchar;
+  TypeLimits<signed char>   schar;
+  TypeLimits<unsigned short>
+                           ushort; // short, usually 2 byte / 16 bit. Defined as "at least 16 bit", commonly implemented mostly as 16 bit (https://en.cppreference.com/w/cpp/language/types)
+  TypeLimits<signed short> sshort;
+  TypeLimits<unsigned int>
+                         uint; // unspecified int, usually 2..4 byte / 16..32 bit. Defined as "at least 16 bit", often implemented as 32 bit (https://en.cppreference.com/w/cpp/language/types)
+  TypeLimits<signed int> sint;
+  TypeLimits<unsigned long>
+                          ulong; // long, usually 4..8 byte / 32..64 bit. Defined as "at least 32 bit", often implemented as 32 bit, except LP64 (https://en.cppreference.com/w/cpp/language/types)
+  TypeLimits<signed long> slong;
+#if defined( NOPF_USE_LONGLONG ) && ( NOPF_USE_LONGLONG )
+  TypeLimits<unsigned long long>
+                               ulonglong; // long long, usually 8 byte / 64 bit. Defined as "at least 64 bit", commonly implemented mostly as 64 bit (https://en.cppreference.com/w/cpp/language/types)
+  TypeLimits<signed long long> slonglong;
 #endif //defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
 };
 
@@ -104,8 +86,8 @@ TEST(TestTimerMacros)
 TEST( Handling_Check )
 {
   Limits Lim;
-  int a = Lim.int_min;
-  int b = Lim.int_max;
+  int    a = Lim.sint.min;
+  int    b = Lim.sint.max;
 
   SUB( Align_default_no_filling )
   {
@@ -229,12 +211,12 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     // 8 bit unsigned values are likely not fit to char
-    if( Lim.char_max >= Lim.uint8_max
-     && Lim.char_min <= Lim.uint8_min )
+    if( Lim.schar.max >= Lim.uint8.max
+     && Lim.schar.min <= Lim.uint8.min )
     {
       Required.str( std::string() );
-      a = Lim.uint8_min;
-      b = Lim.uint8_max;
+      a = Lim.uint8.min;
+      b = Lim.uint8.max;
       REQ( a, < , b );
       Required << Topic << ") signed ShortShort A=" << static_cast<short>( a ) << ", B=" << static_cast<short>( b ) << ".";
       REQ( NoPrintf( "b) signed ShortShort A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -243,8 +225,8 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 8 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int8_min;
-    b = Lim.int8_max;
+    a = Lim.sint8.min;
+    b = Lim.sint8.max;
     REQ( a, < , b );
     Required << Topic << ") signed ShortShort A=" << static_cast<short>( a ) << ", B=" << static_cast<short>( b ) << ".";
     REQ( NoPrintf( "c) signed ShortShort A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -267,28 +249,28 @@ TEST( Handling_Numbers_in_DotArg )
     // 8 bit unsigned values must fit
     Required.str( std::string() );
     REQ( a, < , b );
-    a = Lim.uint8_min;
-    b = Lim.uint8_max;
+    a = Lim.uint8.min;
+    b = Lim.uint8.max;
     Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "b) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 8 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int8_min;
-    b = Lim.int8_max;
+    a = Lim.sint8.min;
+    b = Lim.sint8.max;
     REQ( a, < , b );
     Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "c) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 16 bit unsigned values could perhaps fit
-    if( Lim.short_max >= Lim.uint16_max
-     && Lim.short_min <= Lim.uint16_min )
+    if( Lim.sshort.max >= Lim.uint16.max
+     && Lim.sshort.min <= Lim.uint16.min )
     {
       Required.str( std::string() );
-      a = Lim.uint16_min;
-      b = Lim.uint16_max;
+      a = Lim.uint16.min;
+      b = Lim.uint16.max;
       REQ( a, < , b );
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "d) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -297,21 +279,21 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 16 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int16_min;
-    b = Lim.int16_max;
+    a = Lim.sint16.min;
+    b = Lim.sint16.max;
     REQ( a, < , b );
     Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "e) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // 32 bit unsigned values will likely not fit
-    if( Lim.short_max >= Lim.uint32_max
-     && Lim.short_min <= Lim.uint32_min )
+    if( Lim.sshort.max >= Lim.uint32.max
+     && Lim.sshort.min <= Lim.uint32.min )
     {
 #     if defined( SHRT_MAX ) && defined( UINT32_MAX ) && (SHRT_MAX>=UINT32_MAX)
       Required.str( std::string() );
-      a = Lim.uint32_min;
-      b = Lim.uint32_max;
+      a = Lim.uint32.min;
+      b = Lim.uint32.max;
       REQ( a, < , b );
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "f) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -321,13 +303,13 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     // 32 bit signed values will likely not fit
-    if( Lim.short_max >= Lim.int32_max
-     && Lim.short_min <= Lim.int32_min )
+    if( Lim.sshort.max >= Lim.sint32.max
+     && Lim.sshort.min <= Lim.sint32.min )
     {
 #     if defined( SHRT_MAX ) && defined( INT32_MAX ) && (SHRT_MAX>=INT32_MAX)
       Required.str( std::string() );
-      a = Lim.int32_min;
-      b = Lim.int32_max;
+      a = Lim.sint32.min;
+      b = Lim.sint32.max;
       REQ( a, < , b );
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "g) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -337,12 +319,12 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     // unsigned short values likely not fit in short, because short == signed short
-    if( Lim.ushort_max >= Lim.int32_max &&
-        Lim.ushort_min <= Lim.int32_min )
+    if( Lim.ushort.max >= Lim.sint32.max &&
+        Lim.ushort.min <= Lim.sint32.min )
     {
       Required.str( std::string() );
-      a = Lim.ushort_min;
-      b = Lim.ushort_max;
+      a = Lim.ushort.min;
+      b = Lim.ushort.max;
       REQ( a, < , b );
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "h) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -351,21 +333,21 @@ TEST( Handling_Numbers_in_DotArg )
 
     // signed short values must fit
     Required.str( std::string() );
-    a = Lim.short_min;
-    b = Lim.short_max;
+    a = Lim.sshort.min;
+    b = Lim.sshort.max;
     REQ( a, < , b );
     Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "i) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
     Topic++;
 
     // a (singned) short value can not hold an unsigned int
-    if( Lim.short_max >= Lim.uint_max &&
-        Lim.short_min <= Lim.uint_min )
+    if( Lim.sshort.max >= Lim.uint.max &&
+        Lim.sshort.min <= Lim.uint.min )
     {
 #     if defined( SHRT_MAX ) && defined( UINT_MAX ) && (SHRT_MAX>=UINT_MAX)
       Required.str( std::string() );
-      a = Lim.uint_min;
-      b = Lim.uint_max;
+      a = Lim.uint.min;
+      b = Lim.uint.max;
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( a, < , b );
       REQ( NoPrintf( "j) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -377,13 +359,13 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     // a (singned) short value can likely not hold an signed int
-    if( Lim.short_max >= Lim.int_max &&
-        Lim.short_min <= Lim.int_min )
+    if( Lim.sshort.max >= Lim.sint.max &&
+        Lim.sshort.min <= Lim.sint.min )
     {
 #     if defined( SHRT_MAX ) && defined( INT_MAX ) && (SHRT_MAX>=INT_MAX)
       Required.str( std::string() );
-      a = Lim.int_min;
-      b = Lim.int_max;
+      a = Lim.sint.min;
+      b = Lim.sint.max;
       REQ( a, < , b );
       Required << Topic << ") signed Short A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "k) signed Short A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -412,32 +394,32 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 8 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint8_min;
-    b = Lim.uint8_max;
+    a = Lim.uint8.min;
+    b = Lim.uint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "b) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 8 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int8_min;
-    b = Lim.int8_max;
+    a = Lim.sint8.min;
+    b = Lim.sint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "c) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint16_min;
-    b = Lim.uint16_max;
+    a = Lim.uint16.min;
+    b = Lim.uint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "d) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int16_min;
-    b = Lim.int16_max;
+    a = Lim.sint16.min;
+    b = Lim.sint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "e) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -445,9 +427,9 @@ TEST( Handling_Numbers_in_DotArg )
     // bit problematic test here, must be made CPU dependent
     // 32 bit unsigned values could fit
     Required.str( std::string() );
-    a = Lim.uint32_min;
+    a = Lim.uint32.min;
 #   if defined( __INT_MAX__ ) && defined( __UINT32_MAX__ ) && (__INT_MAX__ >= __UINT32_MAX__)
-    b = Lim.uint32_max;
+    b = Lim.uint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "f) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -458,34 +440,34 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 32 bit signed values could fit
     Required.str( std::string() );
-    a = Lim.int32_min;
-    b = Lim.int32_max;
+    a = Lim.sint32.min;
+    b = Lim.sint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "g) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unsigned short values must fit
     Required.str( std::string() );
-    a = Lim.ushort_min;
-    b = Lim.ushort_max;
+    a = Lim.ushort.min;
+    b = Lim.ushort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "h) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // signed short values must fit
     Required.str( std::string() );
-    a = Lim.short_min;
-    b = Lim.short_max;
+    a = Lim.sshort.min;
+    b = Lim.sshort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "i) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    if( Lim.int_max >= Lim.uint_max &&
-        Lim.int_min <= Lim.uint_min )
+    if( Lim.sint.max >= Lim.uint.max &&
+        Lim.sint.min <= Lim.uint.min )
     {
       Required.str( std::string() );
-      a = Lim.uint_min;
-      b = Lim.uint_max;
+      a = Lim.uint.min;
+      b = Lim.uint.max;
       REQ( a, <, b );
       Required << Topic << ") signed Integer A=" << a << ", B=" << b << ".";
       // if int is unsigned (unlikely) unsigned int values must fit
@@ -495,8 +477,8 @@ TEST( Handling_Numbers_in_DotArg )
 
     // signed int values must fit
     Required.str( std::string() );
-    a = Lim.int_min;
-    b = Lim.int_max;
+    a = Lim.sint.min;
+    b = Lim.sint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Integer A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "k) signed Integer A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -517,32 +499,32 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 8 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint8_min;
-    b = Lim.uint8_max;
+    a = Lim.uint8.min;
+    b = Lim.uint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "b) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 8 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int8_min;
-    b = Lim.int8_max;
+    a = Lim.sint8.min;
+    b = Lim.sint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "c) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint16_min;
-    b = Lim.uint16_max;
+    a = Lim.uint16.min;
+    b = Lim.uint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "d) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int16_min;
-    b = Lim.int16_max;
+    a = Lim.sint16.min;
+    b = Lim.sint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "e) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -550,9 +532,9 @@ TEST( Handling_Numbers_in_DotArg )
     // bit problematic test here, must be made CPU dependent
     // 32 bit unsigned values could fit
     Required.str( std::string() );
-    a = Lim.uint32_min;
+    a = Lim.uint32.min;
 #   if defined( __LONG_MAX__ ) && defined( __UINT32_MAX__ ) && (__LONG_MAX__ >= __UINT32_MAX__)
-    b = Lim.uint32_max;
+    b = Lim.uint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "f) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -563,32 +545,32 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 32 bit signed values could fit
     Required.str( std::string() );
-    a = Lim.int32_min;
-    b = Lim.int32_max;
+    a = Lim.sint32.min;
+    b = Lim.sint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "g) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unsigned short values must fit
     Required.str( std::string() );
-    a = Lim.ushort_min;
-    b = Lim.ushort_max;
+    a = Lim.ushort.min;
+    b = Lim.ushort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "h) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // signed short values must fit
     Required.str( std::string() );
-    a = Lim.short_min;
-    b = Lim.short_max;
+    a = Lim.sshort.min;
+    b = Lim.sshort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "i) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     Required.str( std::string() );
-    a = Lim.uint_min;
+    a = Lim.uint.min;
 #   if defined( __LONG_MAX__ ) && defined( __UINT64_MAX__ ) && (__LONG_MAX__ >= __UINT64_MAX__)
-    b = Lim.uint_max;
+    b = Lim.uint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     // if int is unsigned (unlikely) unsigned int values must fit
@@ -600,26 +582,26 @@ TEST( Handling_Numbers_in_DotArg )
 
     // signed int values must fit
     Required.str( std::string() );
-    a = Lim.int_min;
-    b = Lim.int_max;
+    a = Lim.sint.min;
+    b = Lim.sint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "k) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unspecified (compiler preset) int values must fit
     Required.str( std::string() );
-    a = Lim.int_min;
-    b = Lim.int_max;
+    a = Lim.sint.min;
+    b = Lim.sint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "l) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    if( Lim.long_max >= Lim.ulong_max &&
-        Lim.long_min <= Lim.ulong_min )
+    if( Lim.slong.max >= Lim.ulong.max &&
+        Lim.slong.min <= Lim.ulong.min )
     {
       Required.str( std::string() );
-      a = Lim.ulong_min;
-      b = Lim.ulong_max;
+      a = Lim.ulong.min;
+      b = Lim.ulong.max;
       REQ( a, <, b );
       Required << Topic << ") signed Long A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "m) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -627,8 +609,8 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     Required.str( std::string() );
-    a = Lim.long_min;
-    b = Lim.long_max;
+    a = Lim.slong.min;
+    b = Lim.slong.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "n) signed Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -664,48 +646,48 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 8 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint8_min;
-    b = Lim.uint8_max;
+    a = Lim.uint8.min;
+    b = Lim.uint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "b) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 8 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int8_min;
-    b = Lim.int8_max;
+    a = Lim.sint8.min;
+    b = Lim.sint8.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "c) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit unsigned values must fit
     Required.str( std::string() );
-    a = Lim.uint16_min;
-    b = Lim.uint16_max;
+    a = Lim.uint16.min;
+    b = Lim.uint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "d) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 16 bit signed values must fit
     Required.str( std::string() );
-    a = Lim.int16_min;
-    b = Lim.int16_max;
+    a = Lim.sint16.min;
+    b = Lim.sint16.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "e) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 32 bit unsigned values must fit to long long
     Required.str( std::string() );
-    a = Lim.uint32_min;
-    b = Lim.uint32_max;
+    a = Lim.uint32.min;
+    b = Lim.uint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "f) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // 32 bit signed values must fit to long long
     Required.str( std::string() );
-    a = Lim.int32_min;
-    b = Lim.int32_max;
+    a = Lim.sint32.min;
+    b = Lim.sint32.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "g) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -713,9 +695,9 @@ TEST( Handling_Numbers_in_DotArg )
 #   if defined( NOPF_USE_INT64 ) && ( NOPF_USE_INT64 )
     // 64 bit unsigned values could fit to long long
     Required.str( std::string() );
-    a = Lim.uint64_min;
+    a = Lim.uint64.min;
 #   if defined( __LONG_LONG_MAX__ ) && defined( __UINT64_MAX__ ) && (__LONG_LONG_MAX__ >= __UINT64_MAX__)
-    b = Lim.uint64_max;
+    b = Lim.uint64.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "h) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -726,8 +708,8 @@ TEST( Handling_Numbers_in_DotArg )
 
     // 64 bit signed should must fit to long long
     Required.str( std::string() );
-    a = Lim.int64_min;
-    b = Lim.int64_max;
+    a = Lim.sint64.min;
+    b = Lim.sint64.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "i) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -737,65 +719,65 @@ TEST( Handling_Numbers_in_DotArg )
 
     // unsigned short values must fit
     Required.str( std::string() );
-    a = Lim.ushort_min;
-    b = Lim.ushort_max;
+    a = Lim.ushort.min;
+    b = Lim.ushort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "j) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // signed short values must fit
     Required.str( std::string() );
-    a = Lim.short_min;
-    b = Lim.short_max;
+    a = Lim.sshort.min;
+    b = Lim.sshort.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "k) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // uint values must fit to long long
     Required.str( std::string() );
-    a = Lim.uint_min;
-    b = Lim.uint_max;
+    a = Lim.uint.min;
+    b = Lim.uint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     // if int is unsigned (unlikely) unsigned int values must fit
     REQ( NoPrintf( "l) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     Required.str( std::string() );
-    a = Lim.int_min;
-    b = Lim.int_max;
+    a = Lim.sint.min;
+    b = Lim.sint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "m) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     Required.str( std::string() );
-    a = Lim.int_min;
-    b = Lim.int_max;
+    a = Lim.sint.min;
+    b = Lim.sint.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "n) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     Required.str( std::string() );
-    a = Lim.long_min;
-    b = Lim.long_max;
+    a = Lim.slong.min;
+    b = Lim.slong.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "o) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unspecified long is for sure signed long
     Required.str( std::string() );
-    a = Lim.long_min;
-    b = Lim.long_max;
+    a = Lim.slong.min;
+    b = Lim.slong.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "p) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // no knowledge, if PlatformIO ESP8266 supports uint64_t / long long and what exactly long is, compared to int (short < int <= long)
-    if( Lim.longlong_max >= Lim.ulonglong_max &&
-        Lim.longlong_min <= Lim.ulonglong_min )
+    if( Lim.slonglong.max >= Lim.ulonglong.max &&
+        Lim.slonglong.min <= Lim.ulonglong.min )
     {
       Required.str( std::string() );
-      a = Lim.ulonglong_min;
-      b = Lim.ulonglong_max;
+      a = Lim.ulonglong.min;
+      b = Lim.ulonglong.max;
       REQ( a, <, b );
       Required << Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
       REQ( NoPrintf( "q) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -803,16 +785,16 @@ TEST( Handling_Numbers_in_DotArg )
     Topic++;
 
     Required.str( std::string() );
-    a = Lim.longlong_min;
-    b = Lim.longlong_max;
+    a = Lim.slonglong.min;
+    b = Lim.slonglong.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "r) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
     // unspecified long is for sure signed long
     Required.str( std::string() );
-    a = Lim.longlong_min;
-    b = Lim.longlong_max;
+    a = Lim.slonglong.min;
+    b = Lim.slonglong.max;
     REQ( a, < , b );
     Required << ++Topic << ") signed Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "s) signed Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
@@ -830,8 +812,8 @@ TEST( Handling_Numbers_in_DotArg )
     Required << Topic << ") Unsigned Long Long A=" << a << ", B=" << b << ".";
     REQ( NoPrintf( "A) Unsigned Long Long A=$1, B=$2." ).arg( a ).arg( b ).get(), ==, Required.str() );
 
-    a = Lim.ulong_min;
-    b = Lim.ulong_max;
+    a = Lim.ulong.min;
+    b = Lim.ulong.max;
     REQ( a, < , b );
     Required.str( std::string() );
     Required << ++Topic << ") Unsigned Long Long A=" << a << ", B=" << b << ".";
@@ -847,22 +829,22 @@ TEST( Handling_aligned_numbers )
 {
   static Limits Lim;
 
-  int a = Lim.int_min;
+  int a = Lim.sint.min;
   int b = -654321;
   int c = -1;
   int d = 0;
   int e = 1;
   int f = 1234567;
-  int g = Lim.int_max;
+  int g = Lim.sint.max;
   /*
   std::cout << "int32_t min() : " << std::numeric_limits<int32_t>::min() << std::endl;
   std::cout << "int32_t max() : " << std::numeric_limits<int32_t>::max() << std::endl;
-  std::cout << "int     min() : " << Lim.int_min << std::endl;
-  std::cout << "int     max() : " << Lim.int_max << std::endl;
+  std::cout << "int     min() : " << Lim.sint.min << std::endl;
+  std::cout << "int     max() : " << Lim.sint.max << std::endl;
   std::cout << "signed  min() : " << std::numeric_limits<signed int>::min() << std::endl;
   std::cout << "signed  max() : " << std::numeric_limits<signed int>::max() << std::endl;
-  std::cout << "long    min() : " << Lim.long_min << std::endl;
-  std::cout << "long    max() : " << Lim.long_max << std::endl;
+  std::cout << "long    min() : " << Lim.slong.min << std::endl;
+  std::cout << "long    max() : " << Lim.slong.max << std::endl;
   */
   REQ( a, < , b );
   REQ( b, < , c );
