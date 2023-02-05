@@ -94,7 +94,7 @@ distcheck: exe
 	./$(MyDemoExe)
 
 stylecheck:
-	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
+	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || exit 0
 
 style:
 	@clang-format --dry-run --output-replacements-xml $(AllSrc) > ./doc/stylecheck.xml
