@@ -94,7 +94,9 @@ distcheck: exe
 	./$(MyDemoExe)
 
 stylecheck:
-	@clang-format --dry-run --output-replacements-xml $(AllSrc) >> $GITHUB_OUTPUT
+	@echo "Style Guide check dry run ..."
+	@clang-format -i --verbose --dry-run --output-replacements-xml $(AllSrc) >> $GITHUB_OUTPUT
+	@echo "Style Guide check verify ..."
 	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK." || exit 0
 
 style:
