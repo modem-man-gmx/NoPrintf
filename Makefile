@@ -97,4 +97,5 @@ stylecheck:
 	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
 
 style:
+	@clang-format --dry-run --output-replacements-xml $(AllSrc) > ./doc/stylecheck.xml
 	@clang-format -i --verbose $(AllSrc) && echo "Style Guide reformatting OK."
