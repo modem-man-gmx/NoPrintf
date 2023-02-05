@@ -15,8 +15,8 @@
 
 #define NOPF_USE_FLOAT 0
 #define NOPF_USE_DOUBLE 0
-#define NOPF_USE_INT64 0
-#define NOPF_USE_LONGLONG 0
+#define NOPF_USE_INT64 1
+#define NOPF_USE_LONGLONG 1
 
 #define NOPF_NUMERICAL_LEFTALIGN_FILLCHAR ' ' // do not change this to numericals, would get postpending '0000' so number could get wrong
 #define NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ' '  // printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
