@@ -1,6 +1,6 @@
 # build SampleDemo
 
-.PHONY: all exe unittest lib remake clean check distcheck info stylecheck
+.PHONY: all exe unittest lib remake clean check distcheck info style stylecheck
 
 # 1st target is the target we build with no args, so i want to have 'all' here.
 all: lib exe
@@ -80,6 +80,7 @@ info:
 	@echo "clean    	clean up result + intermediate files"
 	@echo "check		run tests"
 	@echo "distcheck	run delivery tests"
+	@echo "style        reformat source code to coding conventions"
 	@echo "stylecheck	run coding conventions"
 	@echo "info 		this one"
 
@@ -94,3 +95,6 @@ distcheck: exe
 
 stylecheck:
 	@clang-format -n --Werror $(AllSrc) && echo "Style Guide check OK."
+
+style:
+	@clang-format -i --verbose $(AllSrc) && echo "Style Guide reformatting OK."
