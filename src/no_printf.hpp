@@ -65,7 +65,7 @@ public: // further public methods
     }
     else
     {
-      return this->arg( collect_number( static_cast<unsigned long int>( val ), collect, false, width ) );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
     };
   }
 
