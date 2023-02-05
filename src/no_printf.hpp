@@ -64,9 +64,7 @@ public: // further public methods
       return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
     }
     else
-    {
       return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
-    }
   }
 
   NoPrintf& arg( const std::string& str, int width = 0, char fillchr = ' ' )
