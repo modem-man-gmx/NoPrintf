@@ -67,7 +67,7 @@ public: // further public methods
       return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
   }
 
-  NoPrintf& arg( const std::string& str, int width = 0, char fillchr = ' ' )
+  NoPrintf& raw( const std::string& str, int width = 0, char fillchr = ' ' )
   {
     // if width <0 right handed aligned, cut or fill left side
     // if width >0 left handed aligned, cut or fill right
@@ -75,12 +75,23 @@ public: // further public methods
     return *this;
   };
 
-  NoPrintf& arg( const char* txt, int width = 0, char fillchr = ' ' )
+  NoPrintf& raw( const char* txt, int width = 0, char fillchr = ' ' )
   {
     if( nullptr != txt ) { return this->arg( std::string( txt ), width, fillchr ); }
     return *this;
   };
 
+  NoPrintf& arg( const std::string& str, int width = 0, char fillchr = ' ' )
+  {
+    // until implementation of translation, this is just a 1:1 wrap
+    return this->raw( str, width, fillchr );
+  };
+
+  NoPrintf& arg( const char* txt, int width = 0, char fillchr = ' ' )
+  {
+    // until implementation of translation, this is just a 1:1 wrap
+    return this->raw( txt, width, fillchr );
+  };
 
   NoPrintf& arg( unsigned long int uVal, int width = INT_MIN )
   {

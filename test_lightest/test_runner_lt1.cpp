@@ -998,7 +998,18 @@ TEST( NoPrintf_SimpleString_Creations )
     REQ( Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
     REQ( Heretics.get(), !=, std::string( BIBLE_OPENING_LINES ) );
   };
-}
+} // end - TEST( NoPrintf_SimpleString_Creations )
+
+TEST( raw_is_like_arg )
+{
+  SUB( SimpleString )
+  {
+    std::string Required("We replace " "this" " with " "that" " and " "other" " is " "also" " raw.");
+    NoPrintf Untranslated("We replace $1 with $2 and $3 is $4 raw.");
+    REQ( Untranslated.raw("this").raw("that").raw("other").raw("also").get(), ==, std::string( Required ) );
+  };
+} // end - TEST( raw_is_like_arg )
+
 
 
 #if defined(NOPF_USE_DATA_ANALYSIS) && (NOPF_USE_DATA_ANALYSIS)
