@@ -4,7 +4,19 @@
 
 #include "lightest/lightest.h"
 #include "no_printf.hpp"
-//#define __FILE__ "test.cpp"
+
+#if defined( NOPF_USE_ARGCONFIG ) && ( NOPF_USE_ARGCONFIG > 0 )
+#  include "lightest/arg_config_ext.h"
+#endif
+
+#if defined( NOPF_USE_DATA_ANALYSIS ) && ( NOPF_USE_DATA_ANALYSIS > 0 )
+#  include "lightest/data_analysis_ext.h"
+#endif
+
+
+#ifndef __FILE_NAME__ // g++ warning: "__FILE_NAME__" redefined [-Wbuiltin-macro-redefined] / can't undefine either: warning: undefining "__FILE_NAME__" [-Wbuiltin-macro-redefined]
+#  define __FILE_NAME__ "core_test.cpp"
+#endif
 
 #ifndef DIM
 #  define DIM( a ) ( sizeof( a ) / sizeof( a[ 0 ] ) )
@@ -62,7 +74,9 @@ public: // members
 #endif //defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG)
 };
 
-
+#if defined( NOPF_USE_ARGCONFIG ) && ( NOPF_USE_ARGCONFIG > 0 )
+ARG_CONFIG();
+#else
 CONFIG( Configurations )
 {
   for( ; argn > 0; argn--, argc++ )
@@ -70,16 +84,15 @@ CONFIG( Configurations )
     if( std::string( *argc ) == "--no-color" ) NO_COLOR();
     if( std::string( *argc ) == "--no-output" ) NO_OUTPUT();
   }
-  // NO_COLOR();
-  // NO_OUTPUT();
 }
+#endif
 
 /*
-TEST(TestTimerMacros)
+TEST( TestTimerMacros )
 {
   int i = 0;
-  REQ(TIMER(i++), >=, 0);  // Run once and measure the time
-  REQ(AVG_TIMER(i++, 100), >=, 0);  // Run several times and return the average time
+  REQ( TIMER( i++ ), >=, 0 );          // Run once and measure the time
+  REQ( AVG_TIMER( i++, 100 ), >=, 0 ); // Run several times and return the average time
 }
 */
 
@@ -154,7 +167,7 @@ TEST( Can_create_Empty_Strings )
     REQ( NoPrintf().arg( "invisible" ).arg( 0L ).get().c_str(), !=, static_cast<const char*>( nullptr ) );
   };
 
-}; // end-of TEST(Can_create_Empty_Strings)
+} // end-of TEST(Can_create_Empty_Strings)
 
 
 TEST( Handling_bad_placeholders )
@@ -988,6 +1001,16 @@ TEST( NoPrintf_SimpleString_Creations )
 }
 
 
+#if defined(NOPF_USE_DATA_ANALYSIS) && (NOPF_USE_DATA_ANALYSIS)
+REPORT()
+{
+  REPORT_FAILED_TESTS();
+  REPORT_PASS_RATE();
+  REPORT_AVG_TIME();
+}
+
+#else // defined(NOPF_USE_DATA_ANALYSIS) && (NOPF_USE_DATA_ANALYSIS)
+
 // To test DATA
 DATA( GetFailedTests )
 {
@@ -1012,3 +1035,4 @@ DATA( GetFailedTests )
   }
   return; // just for easy breakpoint setting while debugging failed tests.
 }
+#endif // defined(NOPF_USE_DATA_ANALYSIS) && (NOPF_USE_DATA_ANALYSIS)

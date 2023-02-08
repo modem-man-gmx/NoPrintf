@@ -1,10 +1,10 @@
-/********************
+/*
 | Lightest |
-This is the core file of this library, which provides a lightest C++ unit test
-framework. MIT licensed. Github Repo:
-https://github.com/zhangzheheng12345/Lightest Author's Github:
-https://github.com/zhangzheheng12345
-********************/
+This is the core file of this library, which provides a lightest C++ unit
+test framework. Licensed under MIT.
+ - Github Repo: https://github.com/zhangzheheng12345/Lightest
+ - Author's Github: https://github.com/zhangzheheng12345
+*/
 
 #ifndef _LIGHTEST_H_
 #define _LIGHTEST_H_
@@ -20,10 +20,10 @@ https://github.com/zhangzheheng12345
 #endif
 
 #include <ctime>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <vector>
-#include <cstring> // strlen
 
 // For coloring on Windows
 #ifdef _WIN_
@@ -36,10 +36,10 @@ using namespace std;
 /* ========== Output Color ==========*/
 
 enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
-bool OutputColor = true;  // Use NO_COLOR() to set false
+bool outputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
-  if (OutputColor) {
+  if (outputColor) {
 #if defined(_LINUX_) || \
     defined(_MAC_)  // Use ASCII color code on Linux and MacOS
     cout << "\033[" << int(color) << "m";
@@ -72,32 +72,25 @@ void SetColor(Color color) {
 
 /* ========== Data ========== */
 
-bool toOutput = true;  // Use NO_OUTPUT() to set to false
+bool toOutput = true;              // Use NO_OUTPUT() to set to false
+bool failedReturnNoneZero = true;  // Use RETURN_ZERO() to set to false
 
-enum DataType { DATA_SET, DATA_REQ };
+enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
-// Transfer clock_t to ms,
+// Unitlity for transfering clock_t to ms,
 // for on Linux clock_t's unit is us, while on Windows it's ms
 inline double TimeToMs(clock_t time) {
   return double(time) / CLOCKS_PER_SEC * 1000;
 }
 
-void PrintFinal(bool failed, clock_t duration) {
-  if (lightest::toOutput) {
-    if (failed) {
-      SetColor(Color::Red);
-      cout << " **FAILED** ";
-    } else {
-      SetColor(Color::Green);
-      cout << " ++PASSED++ ";
-    }
-    SetColor(Color::Reset);
-  } else {
-    cout << "finished " << (failed?"with failure,": "successfully,");
-  }
-  cout << " " << TimeToMs(duration) << " ms used." << endl;
-}
-
+// Untility for print a string with colorful background
+// e.g. PRINT_LABEL(lightest::Color::Red, 1 << " failed test");
+#define PRINT_LABEL(color, label)               \
+  do {                                          \
+    lightest::SetColor(color);                  \
+    std::cout << label;                         \
+    lightest::SetColor(lightest::Color::Reset); \
+  } while (0)
 
 // All test data classes should extend from Data
 class Data {
@@ -105,7 +98,7 @@ class Data {
   // For outputting
   virtual void Print() const = 0;
   void SetTabs(unsigned int tabs) { this->tabs = tabs; }
-  unsigned int GetTabs() { return tabs; }
+  unsigned int GetTabs() const { return tabs; }
   ostream& PrintTabs() const {
     // Must be 4 spaces a group, for \t may be too wide on some platforms
     // Must this->tabs - 1 first,
@@ -127,33 +120,13 @@ class Data {
 // Recursively call Print() to output
 class DataSet : public Data {
  public:
-  DataSet(const char* name_) : failed(false), name(name_), duration(0) {}
+  DataSet(const char* name_) : failed(false), duration(0), name(name_) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
-	#if defined (DEBUG) && (DEBUG & 0x01)
-	bool old_failed = failed;
-	#endif
     if (son->GetFailed()) failed = true;
-	#if defined (DEBUG) && (DEBUG & 0x01)
-    son->PrintTabs();
-    std::cerr << "Add test result to '" << name
-              << "' adds failed=" << (failed?"fail":"okay")
-              << " to this->failed=" << (old_failed?"fail":"okay")
-              << std::endl;
-	#endif
     sons.push_back(son);
   }
-  void End(bool failed, clock_t duration) {
-	#if defined (DEBUG) && (DEBUG & 0x02)
-    //PrintTabs();
-    std::cerr << "End of " << ((sons.empty()?"leaf":"node")) << " \"" << name
-              << "\" adds failed=" << (failed?"fail":"okay")
-              << " to this->failed=" << (this->failed?"fail":"okay")
-              << std::endl;
-	#endif
-    this->failed = failed || this->failed;
-    this->duration = duration;
-  }
+  void End(clock_t duration) { this->duration = duration; }
   void PrintSons() const {
     for (const Data* item : sons) {
       item->Print();
@@ -161,43 +134,22 @@ class DataSet : public Data {
   }
   void Print() const {
     PrintTabs();
-    SetColor(Color::Blue);
-    cout << " BEGIN ";
-    SetColor(Color::Reset);
+    PRINT_LABEL(Color::Blue, " BEGIN ");
     cout << " " << name << endl;
     PrintSons();
     PrintTabs();
     if (failed) {
-      SetColor(Color::Red);
-      cout << " FAIL  ";
+      PRINT_LABEL(Color::Red, " FAIL  ");
     } else {
-      SetColor(Color::Green);
-      cout << " PASS  ";
+      PRINT_LABEL(Color::Green, " PASS  ");
     }
-    SetColor(Color::Reset);
     cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
-  const bool GetFailed() const {
-	#if defined (DEBUG) && (DEBUG & 0x04)
-    std::cerr << "GetFailed of '" << name << "' reports: " << (failed?"fail":"okay") << std::endl;
-	#endif
-	#if defined (DEBUG) && (DEBUG & 0x08)
-    for (const Data* item : sons) {
-      bool sub_failed = item->GetFailed();
-      std::cerr << "  GetFailed of son reports: " << (sub_failed?"fail":"okay") << std::endl;
-    }
-	#endif
-    // >>> likely a dirty hack here, because globalRegisterData.testData should get siblings result from other way, but somehow it comes to late?
-    bool fixup_failed = failed;
-    for (const Data* item : sons) {
-      fixup_failed |= item->GetFailed();
-    }
-    // <<< dirty hack end
-    return fixup_failed;
-  }
+  const bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
+  unsigned int GetSonsNum() const { return sons.size(); }
   // Should offer a callback to iterate test actions and sub tests' data
   void IterSons(function<void(const Data*)> func) const {
     for (const Data* item : sons) {
@@ -212,49 +164,46 @@ class DataSet : public Data {
 
  private:
   bool failed;
-  const char* name;
   clock_t duration;
   // Data of test actions and sub tests
   vector<const Data*> sons;
+  const char* name;
 };
 
 // Data classes for test actions should to extend from DataUnit,
 // for loggings should contain file & line information
 class DataUnit {
  public:
+  DataUnit(const char* file_, unsigned int line_) : file(file_), line(line_) {}
   unsigned int GetLine() const { return line; }
   const char* GetFileName() const { return file; }
 
  protected:
+  const char* file;  // reordered, because g++ ../lib/Lightest/include/lightest/lightest.h:183:15: warning: 'lightest::DataUnit::file' will be initialized after [-Wreorder]
   unsigned int line;
-  const char* file;
 };
 
 // Data class of REQ assertions
 template <class T, class U>  // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
-  DataReq(const char* file, unsigned int line, const T& actual_,
-          const T& expected_, const char* operator_, const char* expr,
+  DataReq(const char* file_, unsigned int line_, const T& actual_,
+          const U& expected_, const char* operator__, const char* expr_,
           bool failed_)
-      : actual(actual_), expected(expected_), failed(failed_) {
-    this->file = file, this->line = line, this->operator_ = operator_,
-    this->expr = expr;
-  }
+      : DataUnit(file_, line_),
+        actual(actual_),
+        expected(expected_),
+        operator_(operator__),
+        expr(expr_),
+        failed(failed_) {}
   // Print data of REQ if assertion fails
   void Print() const {
     if (failed) {
       PrintTabs();
-      SetColor(Color::Red);
-      cout << " FAIL ";
-      SetColor(Color::Reset);
+      PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      size_t OpLen = strlen(operator_);
-      char placehold[OpLen + 1];
-      memset(placehold, ' ', OpLen);
-      placehold[OpLen]='\0';
-      PrintTabs() << "    +   ACTUAL: " << placehold << " " << actual << endl;
+      PrintTabs() << "    +   ACTUAL: " << actual << endl;
       PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
@@ -270,6 +219,24 @@ class DataReq : public Data, public DataUnit {
   const U expected;
   const char *operator_, *expr;
   const bool failed;
+};
+
+class DataUncaughtError : public Data, public DataUnit {
+ public:
+  DataUncaughtError(const char* file_, unsigned int line_,
+                    const char* errorMsg_)
+      : DataUnit(file_, line_), errorMsg(errorMsg_) {}
+  void Print() const {
+    PrintTabs();
+    PRINT_LABEL(Color::Red, " ERROR ");
+    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg
+         << "]" << endl;
+  }
+  DataType Type() const { return DATA_UNCAUGHT_ERROR; }
+  const bool GetFailed() const { return true; }
+
+ private:
+  const char* errorMsg;
 };
 
 /* ========== Register ========== */
@@ -290,7 +257,7 @@ class Register {
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
     for (const signedFuncWrapper& item : registerList) {
-      item.callerFunc(ctx); // would it not be best to have the OK/FAIL return here and keep it in private: bool failed; ?
+      item.callerFunc(ctx);
     }
   }
   // Restore argn & argc for CONFIG
@@ -311,9 +278,9 @@ class Register {
 int Register::argn = 0;
 char** Register::argc = nullptr;
 
-Register globalRegisterConfig("((Config))");
-Register globalRegisterTest("[[Test]]");
-Register globalRegisterData("{{Data}}");
+Register globalRegisterConfig("");
+Register globalRegisterTest("");
+Register globalRegisterData("");
 
 class Registering {
  public:
@@ -330,10 +297,8 @@ class Testing {
  public:
   // level_: 1 => global tests, 2 => sub tests, 3 => sub sub tests ...
   Testing(const char* name, unsigned int level_)
-      : start(clock()), level(level_) {
-    reg = Register(name);
+      : level(level_), start(clock()), failed(false), reg(name) {
     reg.testData->SetTabs(level);  // Give correct tabs to its sons
-    failed = false;
   }
   // Add a test data unit of a REQ assertion
   template <typename T,
@@ -342,7 +307,10 @@ class Testing {
            const char* operator_, const char* expr, bool failed) {
     reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
                                         expr, failed));
-    this->failed = failed;
+  }
+  void UncaughtError(const char* file, unsigned int line,
+                     const char* errorMsg) {
+    reg.testData->Add(new DataUncaughtError(file, line, errorMsg));
   }
   void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
     reg.Add(name, callerFunc);
@@ -351,12 +319,12 @@ class Testing {
   unsigned int GetLevel() const { return level; }
   ~Testing() {
     reg.RunRegistered();  // Run sub tests
-    reg.testData->End(failed, clock() - start);
+    reg.testData->End(clock() - start);
   }
 
  private:
-  const clock_t start;  // No need to report.
   const unsigned int level;
+  const clock_t start;  // No need to report.
   bool failed;
   Register reg;
 };
@@ -364,6 +332,27 @@ class Testing {
 };  // namespace lightest
 
 /* ========== Registering Macros ========== */
+
+// Avoid undef or redefine buildin macro warning
+// Undef and then define again to have prettier file name
+#ifndef __FILE_NAME__ // cannot undefine builtin: prevent g++ ../lib/Lightest/include/lightest/lightest.h:338: warning: "__FILE_NAME__" redefined [-Wbuiltin-macro-redefined]
+#define __FILE_NAME__ __FILE__
+#endif
+
+// Untility for catching an error and return its detail as type const char*
+#define CATCH(sentence)                   \
+  ([&]() -> const char* {                 \
+    try {                                 \
+      sentence;                           \
+    } catch (const char* str) {           \
+      return str;                         \
+    } catch (const std::exception& err) { \
+      return err.what();                  \
+    } catch (...) {                       \
+      return "Unknown type error";        \
+    }                                     \
+    return nullptr;                       \
+  })()
 
 // To define user's configuarations
 // Pre-define argn and argc for user's configurations
@@ -377,15 +366,16 @@ class Testing {
   void name(int argn, char** argc)
 
 // To define a test
-#define TEST(name)                                                       \
-  void name(lightest::Testing& testing);                                 \
-  void call_##name(lightest::Register::Context& ctx) {                   \
-    lightest::Testing testing(#name, 1);                                 \
-    name(testing);                                                       \
-    ctx.testData->Add(testing.GetData()); /* Colletct data */            \
-  }                                                                      \
-  lightest::Registering registering_##name(lightest::globalRegisterTest, \
-                                           #name, call_##name);          \
+#define TEST(name)                                                          \
+  void name(lightest::Testing& testing);                                    \
+  void call_##name(lightest::Register::Context& ctx) {                      \
+    lightest::Testing testing(#name, 1);                                    \
+    const char* errorMsg = CATCH(name(testing));                            \
+    if (errorMsg) testing.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */               \
+  }                                                                         \
+  lightest::Registering registering_##name(lightest::globalRegisterTest,    \
+                                           #name, call_##name);             \
   void name(lightest::Testing& testing)
 
 // To define a test data processor
@@ -397,26 +387,28 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                  \
-  static std::function<void(lightest::Testing&)> name;             \
-  std::function<void(lightest::Register::Context&)> call_##name =  \
-      [&testing](lightest::Register::Context& ctx) {               \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1); \
-        name(testing_);                                            \
-        ctx.testData->Add(testing_.GetData());                     \
-      };                                                           \
-  testing.AddSub(#name, call_##name);                              \
+#define SUB(name)                                                    \
+  static std::function<void(lightest::Testing&)> name;               \
+  std::function<void(lightest::Register::Context&)> call_##name =    \
+      [&testing](lightest::Register::Context& ctx) {                 \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);   \
+        const char* errorMsg = CATCH(name(testing_));                \
+        if (errorMsg)                                                \
+          testing_.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
+        ctx.testData->Add(testing_.GetData());                       \
+      };                                                             \
+  testing.AddSub(#name, call_##name);                                \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
 
-#define NO_COLOR() lightest::OutputColor = false;
+#define NO_COLOR() lightest::outputColor = false;
 #define NO_OUTPUT() lightest::toOutput = false;
+#define RETURN_ZERO() lightest::failedReturnNoneZero = false;
 
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
-  bool final_failure(true);
   // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
   // Only test registerer need this, for test data will only be added in test
@@ -429,16 +421,16 @@ int main(int argn, char* argc[]) {
   lightest::globalRegisterConfig.RunRegistered();
   lightest::globalRegisterTest.RunRegistered();
   lightest::globalRegisterData.testData = lightest::globalRegisterTest.testData;
-  lightest::globalRegisterData.RunRegistered();
   // Optionally print the default outputs
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  final_failure = lightest::globalRegisterData.testData->GetFailed();
-  lightest::PrintFinal(final_failure, clock());
-  return final_failure ? 1 : 0;
+  lightest::globalRegisterData.RunRegistered();
+  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
+            << std::endl;
+  return lightest::globalRegisterData.testData->GetFailed() &&
+         lightest::failedReturnNoneZero;
 }
-
 
 /* ========= Timer Macros =========== */
 
@@ -468,12 +460,12 @@ int main(int argn, char* argc[]) {
 
 // REQ assertion
 // Additionally return a bool: true => pass, false => fail
-#define REQ(actual, operator, expected)                          \
-  ([&]() -> bool {                                               \
-    bool res = (actual) operator(expected);                      \
-    testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
-                #actual " " #operator" " #expected, !res);       \
-    return res;                                                  \
+#define REQ(actual, operator, expected)                               \
+  ([&]() -> bool {                                                    \
+    bool res = (actual) operator(expected);                           \
+    testing.Req(__FILE_NAME__, __LINE__, actual, expected, #operator, \
+                #actual " " #operator" " #expected, !res);            \
+    return res;                                                       \
   })()
 
 // Condition must be true or stop currnet test
