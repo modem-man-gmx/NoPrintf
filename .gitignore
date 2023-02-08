@@ -21,3 +21,4 @@ Debug
 /lib/lightest/include/lightest/lightest-6.h
 .vscode
 .pio
+*.d
