@@ -1,0 +1,3 @@
+[submodule "lib/lightest"]
+	path = lib/lightest
+	url = git@github.com:modem-man-gmx/Lightest.git
