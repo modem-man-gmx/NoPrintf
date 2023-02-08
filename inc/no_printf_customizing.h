@@ -21,6 +21,10 @@
 #define NOPF_NUMERICAL_LEFTALIGN_FILLCHAR ' ' // do not change this to numericals, would get postpending '0000' so number could get wrong
 #define NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ' '  // printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
 
+#define NOPF_USE_ARGCONFIG 1  // only for Ligtest Unit testing
+#define NOPF_USE_DATA_ANALYSIS 1  // only for Ligtest Unit testing
+
+
 // The next type has to be defined and has to be
 // the biggest available type of this list:
 // - unsigned short
