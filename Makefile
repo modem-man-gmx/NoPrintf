@@ -13,9 +13,9 @@ MyLIB          := libnoprint.a
 MyLIB_SRC      := src/no_printf.cpp
 MyLIB_INC      := src/no_printf.hpp
 
-INC_PATHS ?= ./inc ./src ./lib/lightest/include
+INC_PATHS ?= ./inc ./src ./lib/Lightest/include
 LIB_PATHS ?= ./lib .
-LIB_NAMES ?= $(MyLIB) #libnoprint.a
+LIB_NAMES ?= $(MyLIB)
 ##############################################################
 MyDemoExe_OBJS  := $(MyDemoExe_SRC:.cpp=.o)
 MyUnitTExe_OBJS := $(MyUnitTExe_SRC:.cpp=.o)

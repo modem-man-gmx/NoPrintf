@@ -12,12 +12,15 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
     - name: configure
       run: ./configure
     - name: make
       run: make
-    - name: make check
+    - name: make and run UnitTest
       run: make check
     - name: make stylecheck
       run: make stylecheck
