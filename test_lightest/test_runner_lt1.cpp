@@ -1000,13 +1000,30 @@ TEST( NoPrintf_SimpleString_Creations )
   };
 } // end - TEST( NoPrintf_SimpleString_Creations )
 
+
 TEST( raw_is_like_arg )
 {
   SUB( SimpleString )
   {
     std::string Required("We replace " "this" " with " "that" " and " "other" " is " "also" " raw.");
     NoPrintf Untranslated("We replace $1 with $2 and $3 is $4 raw.");
-    REQ( Untranslated.raw("this").raw("that").raw("other").raw("also").get(), ==, std::string( Required ) );
+    REQ( Untranslated.raw("this").raw("that").raw("other").raw("also").get(), ==, Required );
+  };
+} // end - TEST( raw_is_like_arg )
+
+
+TEST( val_is_for_engineering_values )
+{
+  SUB( Just_quite_statics )
+  {
+    std::string Required("Voltage:111 V * Current: 9 A => Power: 999 W, * 1 h today's Work is 999 Wh.");
+    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 today's Work is $5.");
+    int Volt=111;
+    short Ampere=9;
+    long Power = Volt * Ampere;
+    uint8_t Time=1;
+    long long Work = Power * Time;
+    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
   };
 } // end - TEST( raw_is_like_arg )
 
