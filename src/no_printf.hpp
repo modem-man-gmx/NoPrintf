@@ -101,8 +101,11 @@ public: // further public methods
   template<typename T>
   NoPrintf& val( const T& val, const char* UnitAbbrev = "" )
   {
+    std::string degree_sign("\u00b0");
+    std::string Unit(UnitAbbrev);
     std::string collect, phys_unit;
-    if( *UnitAbbrev != '°' ) phys_unit += " ";
+    if( 0!=Unit.find(degree_sign) )
+      phys_unit += " "; // all units but "°C" must have a space after the number (scientifically correct notation)
     phys_unit += UnitAbbrev;
 
     // unix prefix and value aligning between 0.01 and 999.99 to come ...
