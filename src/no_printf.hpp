@@ -45,8 +45,8 @@ public: // further public methods
   //void trim();
   //void cut(siz_t max);
 
-  NoPrintf& operator()( const std::string& str ) { return set(str); };
-  NoPrintf& operator()( const char* txt ) { return set( std::string(txt?txt:"<nullptr>")); };
+  NoPrintf&   operator()( const std::string& str ) { return set( str ); };
+  NoPrintf&   operator()( const char* txt ) { return set( std::string( txt ? txt : "<nullptr>" ) ); };
   NoPrintf&   set( const std::string& str );
   NoPrintf&   append( const std::string& str );
   NoPrintf&   put();
@@ -55,6 +55,7 @@ public: // further public methods
   template<typename T>
   NoPrintf& arg( const T& val, int width = INT_MIN )
   {
+    const int   decimals( 0 ); // no decimals for integral integer types
     std::string collect;
     if( val < 0 )
     {
@@ -62,10 +63,11 @@ public: // further public methods
       // number type room, but the result will only fit in unsigned same number type room.
       // so we do a (x - 1 + 1) operation to trick the C++ type system, trusting the compiler to not
       // really doing this operation...
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
+      return this->arg(
+          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, decimals, width ) );
     }
     else
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, decimals, width ) );
   }
 
   NoPrintf& raw( const std::string& str, int width = 0, char fillchr = ' ' )
@@ -97,31 +99,34 @@ public: // further public methods
   NoPrintf& arg( unsigned long int uVal, int width = INT_MIN )
   {
     std::string collect;
-    return this->arg( collect_number( uVal, collect, false, width ) );
+    return this->arg( collect_number( uVal, collect, false, 0, width ) );
   };
 
   template<typename T>
-  NoPrintf& val( const T& val, const char* UnitAbbrev = "" )
+  NoPrintf& val( const T& val, const char* UnitAbbrev = "", int decimals = 2 )
   {
     std::string degree_sign( "\u00b0" );
     std::string Unit( UnitAbbrev );
     std::string collect, phys_unit;
-    if( 0 != Unit.find( degree_sign ) )
-      phys_unit += " "; // all units but "°C" must have a space after the number (scientifically correct notation)
+    if( Unit.length() && 0 != Unit.find( degree_sign ) )
+      phys_unit += " "; // all units but "°C" (or empties) must have a space after the number (scientifically correct notation)
     phys_unit += UnitAbbrev;
 
     // unix prefix and value aligning between 0.01 and 999.99 to come ...
 
     if( val < 0 )
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, INT_MIN ) +
-                        phys_unit );
+      return this->arg(
+          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, decimals, INT_MIN ) +
+          phys_unit );
     else
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, INT_MIN ) + phys_unit );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, decimals, INT_MIN ) +
+                        phys_unit );
   }
 
 
 private:
-  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int width = INT_MIN );
+  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int decimals = 0,
+                               int width = INT_MIN );
 
 private:
   std::string              m_str;
