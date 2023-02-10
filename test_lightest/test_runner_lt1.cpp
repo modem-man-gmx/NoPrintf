@@ -998,6 +998,14 @@ TEST( NoPrintf_SimpleString_Creations )
     REQ( Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
     REQ( Heretics.get(), !=, std::string( BIBLE_OPENING_LINES ) );
   };
+  
+  SUB( Can_Init_all_in_one_Line )
+  {
+    NoPrintf ElectricalDetails;
+    int Volt = 10, Ampere = 20, Power = Volt * Ampere;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10 V * Current:20 A => Power:200 W" ) );
+  };
 } // end - TEST( NoPrintf_SimpleString_Creations )
 
 

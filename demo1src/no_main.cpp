@@ -57,5 +57,22 @@ int main()
   NoPrintf Arguments3( "3.) another " );
   Arguments3.append( "String:'$1' and integer=$2 are values too." ).arg( "STRING" ).arg( 42L ).put();
 
+  NoPrintf ElectricalDetails;
+  int      Volt = 700;
+  short    Ampere = -9;
+  for( unsigned short Time = 0; Time <= 365; Time++, Volt--, Ampere *= -1 )
+  {
+    auto Power = Volt * Ampere;
+    auto Work = Power * Time;
+    ElectricalDetails( "Voltage:$1 * Current: $2 => Power: $3, * $4 h = today's Work: $5." )
+        .val( Volt, "V" )
+        .val( Ampere, "A" )
+        .val( Power, "W" )
+        .arg( Time )
+        .val( Work, "Wh" );
+    ElectricalDetails.put();
+  };
+
+
   return 0;
 }

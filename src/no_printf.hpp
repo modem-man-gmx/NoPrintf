@@ -45,6 +45,8 @@ public: // further public methods
   //void trim();
   //void cut(siz_t max);
 
+  NoPrintf& operator()( const std::string& str ) { return set(str); };
+  NoPrintf& operator()( const char* txt ) { return set( std::string(txt?txt:"<nullptr>")); };
   NoPrintf&   set( const std::string& str );
   NoPrintf&   append( const std::string& str );
   NoPrintf&   put();
