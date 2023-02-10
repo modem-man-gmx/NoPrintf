@@ -187,13 +187,14 @@ std::string NoPrintf::operator=( const NoPrintf& lhs ) const
   return lhs.get();
 }
 
-
+/* such would not work, because "$1, $2 of the 2nd class would be sth. like $5, $6 after joining" no good idea!
 NoPrintf& NoPrintf::operator+=( const NoPrintf& rhs )
 {
   m_str += rhs.m_str;
-  // m_args will not be joined here, because args shall only be give right befor put().
+  //kind of doing "this->m_args += rhs.m_args;" ->
+  m_args.insert( std::end(m_args), std::begin(rhs.m_args), std::end(rhs.m_args) );
   return *this;
-}
+}*/
 
 
 NoPrintf& NoPrintf::operator+=( const std::string& rhs )

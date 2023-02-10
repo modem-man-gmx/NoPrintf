@@ -35,7 +35,7 @@ public:                                           // operators
   NoPrintf&   operator=( NoPrintf&& other );      // move assignment
   NoPrintf&   operator=( NoPrintf const& other ); // copy assignment
   std::string operator=( const NoPrintf& lhs ) const;
-  NoPrintf&   operator+=( const NoPrintf& rhs );
+  NoPrintf&   operator+=( const NoPrintf& rhs ) = delete;
   NoPrintf&   operator+=( const std::string& rhs );
   NoPrintf&   operator+=( const char* rhs );
 
@@ -101,10 +101,10 @@ public: // further public methods
   template<typename T>
   NoPrintf& val( const T& val, const char* UnitAbbrev = "" )
   {
-    std::string degree_sign("\u00b0");
-    std::string Unit(UnitAbbrev);
+    std::string degree_sign( "\u00b0" );
+    std::string Unit( UnitAbbrev );
     std::string collect, phys_unit;
-    if( 0!=Unit.find(degree_sign) )
+    if( 0 != Unit.find( degree_sign ) )
       phys_unit += " "; // all units but "°C" must have a space after the number (scientifically correct notation)
     phys_unit += UnitAbbrev;
 
