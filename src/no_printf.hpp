@@ -99,16 +99,17 @@ public: // further public methods
   };
 
   template<typename T>
-  NoPrintf& val( const T& val, const char* UnitAbbrev="" )
+  NoPrintf& val( const T& val, const char* UnitAbbrev = "" )
   {
     std::string collect, phys_unit;
-    if( *UnitAbbrev!='°' ) phys_unit += " ";
+    if( *UnitAbbrev != '°' ) phys_unit += " ";
     phys_unit += UnitAbbrev;
 
     // unix prefix and value aligning between 0.01 and 999.99 to come ...
 
     if( val < 0 )
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, INT_MIN ) + phys_unit );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, INT_MIN ) +
+                        phys_unit );
     else
       return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, INT_MIN ) + phys_unit );
   }

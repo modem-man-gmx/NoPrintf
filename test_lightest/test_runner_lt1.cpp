@@ -1014,7 +1014,7 @@ TEST( raw_is_like_arg )
 
 TEST( val_is_for_engineering_values )
 {
-  SUB( Just_quite_statics )
+  SUB( Just_some_statics_positive )
   {
     std::string Required("Voltage:111 V * Current: 9 A => Power: 999 W, * 1 h today's Work is 999 Wh.");
     NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 today's Work is $5.");
@@ -1024,6 +1024,33 @@ TEST( val_is_for_engineering_values )
     uint8_t Time=1;
     long long Work = Power * Time;
     REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
+  };
+
+  SUB( Just_some_statics_negative )
+  {
+    std::string Required("Voltage:111 V * Current: -9 A => Power: -999 W, * 1 h today's Work is -999 Wh.");
+    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 today's Work is $5.");
+    int Volt=111;
+    short Ampere=-9;
+    signed long Power = Volt * Ampere;
+    uint8_t Time=1;
+    signed long long Work = Power * Time;
+    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
+  };
+
+  SUB( Value_in_a_Loop )
+  {
+    std::stringstream Required;
+    long Power;
+    unsigned short Time;
+    for( Power = 100, Time = 0; Time <= 365 ; Time++ )
+    {
+      Required.str( std::string() );
+      auto Work = Power * Time;
+      Required << "At day " << Time << " the work=" << Work << " " << std::string("Wh") << " (@ " << Power << " W).";
+      NoPrintf ElectricalSimple("At day $1 the work=$2 (@ $3).");
+      REQ( ElectricalSimple.arg(Time).val(Work,"Wh").val(Power,"W").get(), ==, Required.str() );
+    }
   };
 } // end - TEST( raw_is_like_arg )
 
