@@ -1,3 +1,5 @@
+#include <iomanip>  // std::setprecision
+#include <iostream> // std::cout, std::fixed, std::scientific
 #include <limits>
 #include <sstream>
 #include <string>
@@ -906,34 +908,35 @@ TEST( Handling_aligned_numbers )
     REQ( NoPrintf( "E) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,1 ).arg( b,1 ).arg(c,1).arg(d,1).arg(e,1).arg(f,1).arg(g,1).get(), ==, std::string( Required ) );
   };
 
-#if defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR=='0' )
+  char old_fill = NoPF_Set::FillCharAlignRight;
   SUB( Align_plus07_rightalign_prepend_upto7_zeroes ) // does prepend '0000' up to 7 times
   {
+    NoPF_Set::FillCharAlignRight = '0';
     char Required[128];
-    snprintf( Required, DIM(Required), "F) Sml_a=%07d, Minus_b=%07d, Minus1_c=%07d, Zero_d=%07d, One_e=%07d, F_f=%07d, Big_g=%07d.", a, b, c, d ,e ,f, g );
-    Required[ DIM(Required)-1 ] = '\0';
-    REQ( NoPrintf( "F) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
-  };
-#elif defined( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ) &&  ( NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR==' ' )
-  SUB( Align_plus07_rightalign_prepend_upto7_zeroes ) // does prepend ' ' up to 7 times
-  {
-    char Required[128];
-    snprintf( Required, DIM(Required), "F) Sml_a=%7d, Minus_b=%7d, Minus1_c=%7d, Zero_d=%7d, One_e=%7d, F_f=%7d, Big_g=%7d.", a, b, c, d ,e ,f, g );
-    Required[ DIM(Required)-1 ] = '\0';
-    REQ( NoPrintf( "F) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
-  };
-#endif
 
-/* currently no syntax for right-align and space padding
-  SUB( Align_plus_space7 )
-  {
-    char Required[128];
-    snprintf( Required, DIM(Required), "G) Sml_a=%7d, Minus_b=%7d, Minus1_c=%7d, Zero_d=%7d, One_e=%7d, F_f=%7d, Big_g=%7d.", a, b, c, d ,e ,f, g );
+    snprintf( Required, DIM(Required), "F) Minus1_c=%07d, Zero_d=%07d", c, d );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "F) Minus1_c=$1, Zero_d=$2" ).arg( c,7 ).arg( d,7 ).get(), ==, std::string( Required ) );
+
+    snprintf( Required, DIM(Required), "G) Sml_a=%07d, Minus_b=%07d, Minus1_c=%07d, Zero_d=%07d, One_e=%07d, F_f=%07d, Big_g=%07d.", a, b, c, d ,e ,f, g );
     Required[ DIM(Required)-1 ] = '\0';
     REQ( NoPrintf( "G) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
   };
-*/
 
+  SUB( Align_plus07_rightalign_prepend_upto7_spaces ) // does prepend ' ' up to 7 times
+  {
+    NoPF_Set::FillCharAlignRight = ' ';
+    char Required[128];
+
+    snprintf( Required, DIM(Required), "H) Minus1_c=%7d, Zero_d=%7d", c, d );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "H) Minus1_c=$1, Zero_d=$2" ).arg( c,7 ).arg( d,7 ).get(), ==, std::string( Required ) );
+
+    snprintf( Required, DIM(Required), "I) Sml_a=%7d, Minus_b=%7d, Minus1_c=%7d, Zero_d=%7d, One_e=%7d, F_f=%7d, Big_g=%7d.", a, b, c, d ,e ,f, g );
+    Required[ DIM(Required)-1 ] = '\0';
+    REQ( NoPrintf( "I) Sml_a=$1, Minus_b=$2, Minus1_c=$3, Zero_d=$4, One_e=$5, F_f=$6, Big_g=$7." ).arg( a,7 ).arg( b,7 ).arg(c,7).arg(d,7).arg(e,7).arg(f,7).arg(g,7).get(), ==, std::string( Required ) );
+  };
+  NoPF_Set::FillCharAlignRight = old_fill;
 } // End-of TEST( Handling_aligned_numbers )
 
 
@@ -998,7 +1001,7 @@ TEST( NoPrintf_SimpleString_Creations )
     REQ( Christian.get(), ==, std::string( BIBLE_OPENING_LINES ) );
     REQ( Heretics.get(), !=, std::string( BIBLE_OPENING_LINES ) );
   };
-  
+
   SUB( Can_Init_all_in_one_Line )
   {
     NoPrintf ElectricalDetails;
@@ -1046,18 +1049,28 @@ TEST( val_is_for_engineering_values )
     REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
   };
 
-  SUB( Value_in_a_Loop )
+  SUB( Value_in_a_Loop_with_no_prefixing )
   {
+// NoPF_Set::EngineeringDecimals // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
+// NoPF_Set::DecimalsDelimitter // '.'
+
     std::stringstream Required;
     long Power;
     unsigned short Time;
-    for( Power = 100, Time = 0; Time <= 365 ; Time++ )
+    for( Power = 100, Time = 1; Time <= 365 ; Time+=7 )
     {
       Required.str( std::string() );
+      NoPrintf ElectricalSimple;
       auto Work = Power * Time;
-      Required << "At day " << Time << " the work=" << Work << " " << std::string("Wh") << " (@ " << Power << " W).";
-      NoPrintf ElectricalSimple("At day $1 the work=$2 (@ $3).");
-      REQ( ElectricalSimple.arg(Time).val(Work,"Wh").val(Power,"W").get(), ==, Required.str() );
+      std::string WattHours("Wh"), WattHours_Req(WattHours);
+      std::string Watt("W"), Watt_Req(Watt);
+
+      Required << std::setprecision(NoPF_Set::EngineeringDecimals) << std::fixed;
+      Required << "At day " << unsigned(Time) << " the work=" << float(Work) << " " << WattHours_Req << " (@ " << double(Power) << " " << Watt_Req << ").";
+
+      ElectricalSimple("At day $1 the work=$2 (@ $3).").arg(Time).val(Work,WattHours).val(Power,Watt);
+      REQ( ElectricalSimple.get(), ==, Required.str() );
+      MUST( ElectricalSimple.get() == Required.str() );
     }
   };
 } // end - TEST( raw_is_like_arg )

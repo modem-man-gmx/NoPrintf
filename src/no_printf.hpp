@@ -10,11 +10,21 @@
 
 //namespace No {
 
-template<typename T>
-struct type2type
+
+struct NoPF_Set // static Settings
 {
-  typedef T type; // dirty hack to teach g++ the template specialisation for methods
+  static char
+      FillCharAlignLeft; //   = NOPF_NUMERICAL_LEFTALIGN_FILLCHAR    -- do not change this to numericals, would get postpending '0000' so number could get wrong
+  static char
+      FillCharAlignRight; //  = NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR   -- printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
+  static bool
+      FillCharScience; //     = NOPF_SCIENTIFICALLY_CORRECT_SPACING  -- true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
+  static int
+      EngineeringDecimals; // = NOPF_ENGINNERING_DECIMALS_DEFAULT    -- 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
+  static char
+      DecimalsDelimitter; //  = NOPF_ENGINNERING_DECIMALS_DELIMITTER -- '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
 };
+
 
 class NoPrintf
 {
@@ -103,14 +113,19 @@ public: // further public methods
   };
 
   template<typename T>
-  NoPrintf& val( const T& val, const char* UnitAbbrev = "", int decimals = 2 )
+  NoPrintf& val( const T& val, const char* UnitAbbrev = "", int decimals = NoPF_Set::EngineeringDecimals )
+  {
+    return this->val( val, std::string( UnitAbbrev ), decimals );
+  }
+
+  template<typename T>
+  NoPrintf& val( const T& val, const std::string& Unit = std::string( "" ), int decimals = NoPF_Set::EngineeringDecimals )
   {
     std::string degree_sign( "\u00b0" );
-    std::string Unit( UnitAbbrev );
     std::string collect, phys_unit;
-    if( Unit.length() && 0 != Unit.find( degree_sign ) )
-      phys_unit += " "; // all units but "°C" (or empties) must have a space after the number (scientifically correct notation)
-    phys_unit += UnitAbbrev;
+    // all units but "°C" (or empties) must have a space after the number (if scientifically correct notation is true)
+    if( NoPF_Set::FillCharScience && Unit.length() && 0 != Unit.find( degree_sign ) ) phys_unit += " ";
+    phys_unit += Unit;
 
     // unix prefix and value aligning between 0.01 and 999.99 to come ...
 
