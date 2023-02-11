@@ -1053,24 +1053,74 @@ TEST( val_is_for_engineering_values )
   {
 // NoPF_Set::EngineeringDecimals // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
 // NoPF_Set::DecimalsDelimitter // '.'
-
+    const char Prefix[] = "qryzafpnµm\0kMGTPEZYRQ";
+    char const *pPrefix = Prefix + sizeof(Prefix)/2; // point to middle/nothing
     std::stringstream Required;
-    long Power;
-    unsigned short Time;
-    for( Power = 100, Time = 1; Time <= 365 ; Time+=7 )
+    long long Power(9), Work(0);
+    unsigned short Day(0), Hours(12);
+
+    for( Day = 1; Day <= 365 ; Day++ )
     {
+      if( Day%28 ) Power*=10;
+      MUST( Power <= static_cast<long long>(__FLT_MAX__) );
+      float fPower = float(Power);
+      Hours += ((Day%5)-2);
+      Work = Power * Hours;
+      MUST( Work <= static_cast<long long>(__DBL_MAX__) );
+      double fWork = double(Work);
+
       Required.str( std::string() );
       NoPrintf ElectricalSimple;
-      auto Work = Power * Time;
-      std::string WattHours("Wh"), WattHours_Req(WattHours);
-      std::string Watt("W"), Watt_Req(Watt);
+
+      const std::string WattHours("Wh");
+      const std::string Watt("W");
+      std::string WattHours_Req(WattHours), WattHours_Act(WattHours);
+      std::string Watt_Req(Watt), Watt_Act(Watt);
+
+      pPrefix = Prefix + sizeof(Prefix)/2;
+      MUST( (*pPrefix == '\0') && ( pPrefix >= Prefix ) && ( pPrefix < Prefix + sizeof(Prefix) ) );
+      while(fWork>=1000.0000)
+      {
+        fWork/=1000.0;
+        pPrefix++;
+        MUST( pPrefix >= Prefix );
+        MUST( pPrefix < Prefix + sizeof(Prefix) );
+        WattHours_Req = std::string( 1, *pPrefix ) + WattHours;
+      }
+      while(fWork < 1.0)
+      {
+        fWork*=1000.0;
+        pPrefix--;
+        MUST( pPrefix >= Prefix );
+        MUST( pPrefix < Prefix + sizeof(Prefix) );
+        WattHours_Req = std::string( 1, *pPrefix ) + WattHours;
+      }
+
+      pPrefix = Prefix + sizeof(Prefix)/2;
+      MUST( (*pPrefix == '\0') && ( pPrefix >= Prefix ) && ( pPrefix < Prefix + sizeof(Prefix) ) );
+      while(fPower>=1000.0000)
+      {
+        fPower/=1000.0;
+        pPrefix++;
+        MUST( pPrefix >= Prefix );
+        MUST( pPrefix < Prefix + sizeof(Prefix) );
+        Watt_Req = std::string( 1, *pPrefix ) + Watt;
+      }
+      while(fPower < 1.0)
+      {
+        fPower*=1000.0;
+        pPrefix--;
+        MUST( pPrefix >= Prefix );
+        MUST( pPrefix < Prefix + sizeof(Prefix) );
+        Watt_Req = std::string( 1, *pPrefix ) + Watt;
+      }
 
       Required << std::setprecision(NoPF_Set::EngineeringDecimals) << std::fixed;
-      Required << "At day " << unsigned(Time) << " the work=" << float(Work) << " " << WattHours_Req << " (@ " << double(Power) << " " << Watt_Req << ").";
+      Required << "At day " << unsigned(Day) << " the " << unsigned(Hours) << " h work=" << fWork << " " << WattHours_Req << " (@ " << fPower << " " << Watt_Req << ").";
 
-      ElectricalSimple("At day $1 the work=$2 (@ $3).").arg(Time).val(Work,WattHours).val(Power,Watt);
+      ElectricalSimple("At day $1 the $2 h work=$3 (@ $4).").arg(Day).arg(Hours).val(Work,WattHours_Act).val(Power,Watt_Act);
       REQ( ElectricalSimple.get(), ==, Required.str() );
-      MUST( ElectricalSimple.get() == Required.str() );
+      //MUST( ElectricalSimple.get() == Required.str() );
     }
   };
 } // end - TEST( raw_is_like_arg )

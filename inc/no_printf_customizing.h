@@ -22,7 +22,7 @@
 #define NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR ' '  // printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
 #define NOPF_SCIENTIFICALLY_CORRECT_SPACING true // true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
 #define NOPF_ENGINNERING_DECIMALS_DELIMITTER '.' // '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
-#define NOPF_ENGINNERING_DECIMALS_DEFAULT 0 // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
+#define NOPF_ENGINNERING_DECIMALS_DEFAULT 2 // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
 
 #define NOPF_USE_ARGCONFIG 1  // only for Ligtest Unit testing
 #define NOPF_USE_DATA_ANALYSIS 1  // only for Ligtest Unit testing
