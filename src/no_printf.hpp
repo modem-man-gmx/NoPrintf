@@ -5,6 +5,7 @@
 
 #include <climits>
 #include <cstddef>
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -13,17 +14,45 @@
 
 struct NoPF_Set // static Settings
 {
-  static char
-      FillCharAlignLeft; //   = NOPF_NUMERICAL_LEFTALIGN_FILLCHAR    -- do not change this to numericals, would get postpending '0000' so number could get wrong
-  static char
-      FillCharAlignRight; //  = NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR   -- printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
-  static bool
-      FillCharScience; //     = NOPF_SCIENTIFICALLY_CORRECT_SPACING  -- true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
-  static int
-      EngineeringDecimals; // = NOPF_ENGINNERING_DECIMALS_DEFAULT    -- 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
-  static char
-      DecimalsDelimitter; //  = NOPF_ENGINNERING_DECIMALS_DELIMITTER -- '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
+  // NOPF_NUMERICAL_LEFTALIGN_FILLCHAR    -- do not change this to numericals, would get postpending '0000' so number could get wrong
+  static char FillCharAlignLeft;
+  // NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR   -- printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
+  static char FillCharAlignRight;
+  // NOPF_SCIENTIFICALLY_CORRECT_SPACING  -- true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
+  static bool FillCharScience;
+  // NOPF_ENGINNERING_DECIMALS_DEFAULT    -- 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
+  static int EngineeringDecimals;
+  // NOPF_ENGINNERING_DECIMALS_DELIMITTER -- '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
+  static char DecimalsDelimitter;
 };
+
+#define NOPF_PREFIX_ARRAY "qryzafpnµm\0kMGTPEZYRQ"
+
+template<typename valT>
+class UnitVal
+{
+public:
+  UnitVal() = delete;
+  UnitVal( valT RawValue, const std::string& BaseUnit=std::string("") )
+    : m_isBaseUnit(true)
+    , m_value(RawValue)
+    , m_multiply(1) // not a denominator! it is 1000 for "k", 1000000 for "G", ...
+    , m_baseunit(BaseUnit)
+    , m_prefix(NOPF_PREFIX_ARRAY)
+    {};
+  ~ UnitVal() = default;
+  valT               get_raw() const { return m_value; };
+  BiggestNumerical_t get_mult() const { return m_multiply; };
+  const std::string& get_base() const { return m_baseunit; };
+private:
+  bool m_isBaseUnit;
+  valT m_value;
+  BiggestNumerical_t m_multiply;
+  std::string m_baseunit;
+  const char m_prefix[ 1+sizeof(NOPF_PREFIX_ARRAY) ];
+};
+
+
 
 
 class NoPrintf
@@ -148,6 +177,33 @@ private:
   std::vector<std::string> m_args;
 };
 
+#if 0
+template<typename valT>
+UnitVal<valT> NoPF_Unit::engval( valT val, const std::string& BaseUnit )
+{
+  const std::string degree_sign( "\u00b0" ); // todo to class
+  const std::string ScienceGap( (BaseUnit.length() && NoPF_Set::FillCharScience && (0 != BaseUnit.find( degree_sign ))) ? " ": "" );
+
+  UnitVal<valT> Result( val, BaseUnit );
+  char const *pPrefix = NoPF_Unit::Prefix + strlen(NoPF_Unit::Prefix)/2;
+  assert( *pPrefix == ' ' );
+#error
+  const int make_abs( (val<0) ? -1 : 1 );
+
+  // unix prefix and value aligning between 0.01 and 999.99 ...
+  while( ((make_abs * Result.Value) / Result.Divided) >= 1000 )
+  {
+    Result.Divided *= 1000;
+    pPrefix++;
+    assert( pPrefix >= Prefix );
+    assert( pPrefix < Prefix + strlen(Prefix) );
+  }
+  std::string UnitPrefix( std::string( 1, ((*pPrefix==' ') ? '\0' : *pPrefix) ) );
+  Result.Unit = ScienceGap + UnitPrefix + Result.Unit;
+  Result.isBaseUnit = (1==Result.Divided);
+  return Result;
+}
+#endif
 
 //} // namespace
 

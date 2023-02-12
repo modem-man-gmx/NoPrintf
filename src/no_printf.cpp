@@ -272,13 +272,17 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
 }
 
 
-char NoPF_Set::FillCharAlignLeft =
-    NOPF_NUMERICAL_LEFTALIGN_FILLCHAR; // do not change this to numericals, would get postpending '0000' so number could get wrong
-char NoPF_Set::FillCharAlignRight =
-    NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR; // printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
-bool NoPF_Set::FillCharScience =
-    NOPF_SCIENTIFICALLY_CORRECT_SPACING; // true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
-int NoPF_Set::EngineeringDecimals =
-    NOPF_ENGINNERING_DECIMALS_DEFAULT; // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
-char NoPF_Set::DecimalsDelimitter =
-    NOPF_ENGINNERING_DECIMALS_DELIMITTER; // '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
+// do not change this to numericals, would get postpending '0000' so number could get wrong
+char NoPF_Set::FillCharAlignLeft = NOPF_NUMERICAL_LEFTALIGN_FILLCHAR;
+
+// printf would use a '0', but printf also supports other outdated 0001234+ 000789- formatting ...
+char NoPF_Set::FillCharAlignRight = NOPF_NUMERICAL_RIGHTALIGN_FILLCHAR;
+
+// true: "14 km/h, 230 V, 37°C", false: "14km/h, 230V, 37°C"
+bool NoPF_Set::FillCharScience = NOPF_SCIENTIFICALLY_CORRECT_SPACING;
+
+// 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
+int NoPF_Set::EngineeringDecimals = NOPF_ENGINNERING_DECIMALS_DEFAULT;
+
+// '.' for most English languages, ',' for Germany. ToDo: set locale-dependent?
+char NoPF_Set::DecimalsDelimitter = NOPF_ENGINNERING_DECIMALS_DELIMITTER;

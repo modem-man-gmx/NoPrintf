@@ -1049,6 +1049,21 @@ TEST( val_is_for_engineering_values )
     REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
   };
 
+  SUB( NoPF_UnitVal_construct )
+  {
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+    NoPF_Set::EngineeringDecimals = 2;
+
+    short Shortval = 12345;
+    UnitVal UV( Shortval, "P" );
+
+    REQ( UV.get_raw(), == , 12345 );
+    REQ( UV.get_mult(), == , 1 );
+    REQ( UV.get_base(), == , std::string("P") );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
+  };
+
   SUB( Value_in_a_Loop_with_no_prefixing )
   {
 // NoPF_Set::EngineeringDecimals // 2 -> "230.00 V" *5 = "1.15 kV" /100 = "11.50 V" /100 = "0.11 mV"
