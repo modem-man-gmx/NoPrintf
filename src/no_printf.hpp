@@ -3,9 +3,9 @@
 
 #include <no_printf_customizing.h>
 
+#include <cassert>
 #include <climits>
 #include <cstddef>
-#include <cassert>
 #include <string>
 #include <vector>
 
@@ -33,26 +33,24 @@ class UnitVal
 {
 public:
   UnitVal() = delete;
-  UnitVal( valT RawValue, const std::string& BaseUnit=std::string("") )
-    : m_isBaseUnit(true)
-    , m_value(RawValue)
-    , m_multiply(1) // not a denominator! it is 1000 for "k", 1000000 for "G", ...
-    , m_baseunit(BaseUnit)
-    , m_prefix(NOPF_PREFIX_ARRAY)
-    {};
-  ~ UnitVal() = default;
+  UnitVal( valT RawValue, const std::string& BaseUnit = std::string( "" ) )
+      : m_isBaseUnit( true )
+      , m_value( RawValue )
+      , m_multiply( 1 ) // not a denominator! it is 1000 for "k", 1000000 for "G", ...
+      , m_baseunit( BaseUnit )
+      , m_prefix( NOPF_PREFIX_ARRAY ) {};
+  ~UnitVal() = default;
   valT               get_raw() const { return m_value; };
   BiggestNumerical_t get_mult() const { return m_multiply; };
   const std::string& get_base() const { return m_baseunit; };
+
 private:
-  bool m_isBaseUnit;
-  valT m_value;
+  bool               m_isBaseUnit;
+  valT               m_value;
   BiggestNumerical_t m_multiply;
-  std::string m_baseunit;
-  const char m_prefix[ 1+sizeof(NOPF_PREFIX_ARRAY) ];
+  std::string        m_baseunit;
+  const char         m_prefix[ 1 + sizeof( NOPF_PREFIX_ARRAY ) ];
 };
-
-
 
 
 class NoPrintf
@@ -187,7 +185,7 @@ UnitVal<valT> NoPF_Unit::engval( valT val, const std::string& BaseUnit )
   UnitVal<valT> Result( val, BaseUnit );
   char const *pPrefix = NoPF_Unit::Prefix + strlen(NoPF_Unit::Prefix)/2;
   assert( *pPrefix == ' ' );
-#error
+#  error
   const int make_abs( (val<0) ? -1 : 1 );
 
   // unix prefix and value aligning between 0.01 and 999.99 ...
