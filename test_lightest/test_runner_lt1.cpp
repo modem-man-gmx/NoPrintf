@@ -1057,9 +1057,60 @@ TEST( val_is_for_engineering_values )
     short Shortval = 12345;
     UnitVal UV( Shortval, "P" );
 
-    REQ( UV.get_raw(), == , 12345 );
+    REQ( UV.get_abs(), == , 12345 );
+    REQ( UV.is_minus(), == , false );
+    REQ( UV.get_sign(), == , '\0' );
+    REQ( UV.get_sign(true), == , '+' );
     REQ( UV.get_mult(), == , 1 );
     REQ( UV.get_base(), == , std::string("P") );
+    REQ( UV.get_prefix(), == , '\0' );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
+  };
+
+  SUB( NoPF_UnitVal_get )
+  {
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+    NoPF_Set::EngineeringDecimals = 2;
+    try
+    {
+      short Shortval = 12345;
+      static UnitVal UV( Shortval, "P" );
+
+      REQ( UV.get_abs(), == , 12345 );
+      REQ( UV.is_minus(), == , false );
+      REQ( UV.get_sign(), == , '\0' );
+      REQ( UV.get_sign(true), == , '+' );
+      REQ( UV.get_engineer(), == , 12 );
+      REQ( UV.get_reminder(), == , 35 );
+      REQ( UV.get_mult(), ==, 1000 );
+      REQ( UV.get_base(), ==, std::string("P") );
+      REQ( UV.get_gap(), ==, std::string(" ") );
+      REQ( UV.get_prefix(), ==, 'k' );
+
+      static UnitVal Temp1( 37, "°C" );
+      REQ( Temp1.get_abs(), == , 37 );
+      REQ( Temp1.is_minus(), == , false );
+      REQ( Temp1.get_sign(), == , '\0' );
+      REQ( Temp1.get_engineer(), == , 37 );
+      REQ( Temp1.get_reminder(), == , 0 );
+      REQ( Temp1.get_mult(), ==, 1 );
+      REQ( Temp1.get_base(), ==, std::string("°C") );
+      REQ( Temp1.get_gap(), == , std::string("") );
+      REQ( Temp1.get_prefix(), == , '\0' );
+
+      static UnitVal Temp2( -274, "°C" );
+      REQ( Temp2.get_abs(), == , 274 );
+      REQ( Temp2.is_minus(), == , true );
+      REQ( Temp2.get_sign(), == , '-' );
+      REQ( Temp2.get_base(), ==, std::string("°C") );
+      REQ( Temp2.get_gap(), == , std::string("") );
+      REQ( Temp2.get_prefix(), == , '\0' );
+    } catch( const std::exception& e )
+    {
+      puts( e.what() );
+      REQ( 1, == , 2 );
+    }
 
     NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
   };

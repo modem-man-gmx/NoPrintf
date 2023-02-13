@@ -26,30 +26,74 @@ struct NoPF_Set // static Settings
   static char DecimalsDelimitter;
 };
 
+// international scientific 10^(3*n) prefixes with -10 <= n <= 10 (wich can't be used all on usual C++ integrated types)
 #define NOPF_PREFIX_ARRAY "qryzafpnµm\0kMGTPEZYRQ"
 
-template<typename valT>
 class UnitVal
 {
 public:
   UnitVal() = delete;
-  UnitVal( valT RawValue, const std::string& BaseUnit = std::string( "" ) )
+  UnitVal( BiggestNumerical_t RawValue, const std::string& BaseUnit = std::string( "" ) )
       : m_isBaseUnit( true )
+      , m_isMinus( false )
       , m_value( RawValue )
       , m_multiply( 1 ) // not a denominator! it is 1000 for "k", 1000000 for "G", ...
       , m_baseunit( BaseUnit )
-      , m_prefix( NOPF_PREFIX_ARRAY ) {};
+      , m_prefix( NOPF_PREFIX_ARRAY )
+      , m_pPrefixSelector( m_prefix + sizeof( NOPF_PREFIX_ARRAY ) / 2 ) {};
+
+  template<typename T>
+  UnitVal( T RawValue, const std::string& BaseUnit = std::string( "" ) )
+      : UnitVal( static_cast<BiggestNumerical_t>( ( RawValue < 0 ) ? ( ( ( RawValue + 1 ) * -1 ) + 1 ) : RawValue ),
+                 BaseUnit ) // CTor delegation
+  {
+    m_isMinus = ( RawValue < 0 );
+  };
+
   ~UnitVal() = default;
-  valT               get_raw() const { return m_value; };
+
+  BiggestNumerical_t get_abs() const { return m_value; };
   BiggestNumerical_t get_mult() const { return m_multiply; };
+  bool               is_minus() const { return m_isMinus; };
   const std::string& get_base() const { return m_baseunit; };
+  char get_sign( bool plus_on_positive = false ) const { return ( m_isMinus ) ? '-' : ( plus_on_positive ) ? '+' : '\0'; };
+  char get_prefix() const
+  {
+    if( m_isBaseUnit )
+      return *m_pPrefixSelector;
+    else
+      throw std::runtime_error( "code to come!" );
+  };
+
+  BiggestNumerical_t get_engineer()
+  {
+    if( m_isBaseUnit )
+      return m_value;
+    else
+      throw std::runtime_error( "code to come!" );
+  };
+
+  BiggestNumerical_t get_reminder()
+  {
+    if( m_isBaseUnit )
+      return 0;
+    else
+      throw std::runtime_error( "code to come!" );
+  };
+  const char* get_gap() const
+  {
+    return ( m_baseunit.length() && NoPF_Set::FillCharScience && ( 0 != m_baseunit.find( std::string( "\u00b0" ) ) ) ) ? " "
+                                                                                                                       : "";
+  };
 
 private:
   bool               m_isBaseUnit;
-  valT               m_value;
+  bool               m_isMinus;
+  BiggestNumerical_t m_value;
   BiggestNumerical_t m_multiply;
   std::string        m_baseunit;
   const char         m_prefix[ 1 + sizeof( NOPF_PREFIX_ARRAY ) ];
+  char const*        m_pPrefixSelector;
 };
 
 
