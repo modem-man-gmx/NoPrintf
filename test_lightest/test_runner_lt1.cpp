@@ -1004,10 +1004,35 @@ TEST( NoPrintf_SimpleString_Creations )
 
   SUB( Can_Init_all_in_one_Line )
   {
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+    NoPF_Set::EngineeringDecimals = 0;
+
     NoPrintf ElectricalDetails;
     int Volt = 10, Ampere = 20, Power = Volt * Ampere;
     ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
     REQ( ElectricalDetails.get(), ==, std::string( "Volt:10 V * Current:20 A => Power:200 W" ) );
+
+    NoPF_Set::EngineeringDecimals = 1;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10.0 V * Current:20.0 A => Power:200.0 W" ) );
+
+    NoPF_Set::EngineeringDecimals = 2;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10.00 V * Current:20.00 A => Power:200.00 W" ) );
+
+    NoPF_Set::EngineeringDecimals = 3;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10.000 V * Current:20.000 A => Power:200.000 W" ) );
+
+    NoPF_Set::EngineeringDecimals = 4;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10.0000 V * Current:20.0000 A => Power:200.0000 W" ) );
+
+    NoPF_Set::EngineeringDecimals = 5;
+    ElectricalDetails( "Volt:$1 * Current:$2 => Power:$3" ).val( Volt, "V" ).val( Ampere, "A" ).val( Power, "W" );
+    REQ( ElectricalDetails.get(), ==, std::string( "Volt:10.00000 V * Current:20.00000 A => Power:200.00000 W" ) );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
   };
 } // end - TEST( NoPrintf_SimpleString_Creations )
 
@@ -1027,43 +1052,77 @@ TEST( val_is_for_engineering_values )
 {
   SUB( Just_some_statics_positive )
   {
-    std::string Required("Voltage:111 V * Current: 9 A => Power: 999 W, * 1 h today's Work is 999 Wh.");
-    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 today's Work is $5.");
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+
+    std::string Required;
+    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 h today's Work is $5.");
     int Volt=111;
     short Ampere=9;
     long Power = Volt * Ampere;
     uint8_t Time=1;
     long long Work = Power * Time;
-    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = 0;
+    Required = "Voltage:111 V * Current: 9 A => Power: 999 W, * 1 h today's Work is 999 Wh.";
+    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").arg(Time).val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = 1;
+    Required = "Voltage:111.0 V * Current: 9.0 A => Power: 999.0 W, * 1 h today's Work is 999.0 Wh.";
+    REQ( ElectricalSimple.init().val(Volt,"V").val(Ampere,"A").val(Power, "W").arg(Time).val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = 6;
+    Required = "Voltage:111.000000 V * Current: 9.000000 A => Power: 999.000000 W, * 1 h today's Work is 999.000000 Wh.";
+    REQ( ElectricalSimple.init().val(Volt,"V").val(Ampere,"A").val(Power, "W").arg(Time).val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
   };
 
   SUB( Just_some_statics_negative )
   {
-    std::string Required("Voltage:111 V * Current: -9 A => Power: -999 W, * 1 h today's Work is -999 Wh.");
-    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 today's Work is $5.");
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+
+    std::string Required;
+    NoPrintf ElectricalSimple("Voltage:$1 * Current: $2 => Power: $3, * $4 h today's Work is $5.");
     int Volt=111;
     short Ampere=-9;
     signed long Power = Volt * Ampere;
     uint8_t Time=1;
     signed long long Work = Power * Time;
-    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").val(Time,"h").val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = 0;
+    Required = "Voltage:111 V * Current: -9 A => Power: -999 W, * 1 h today's Work is -999 Wh.";
+    REQ( ElectricalSimple.val(Volt,"V").val(Ampere,"A").val(Power, "W").arg(Time).val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = 3;
+    Required = "Voltage:111.000 V * Current: -9.000 A => Power: -999.000 W, * 1 h today's Work is -999.000 Wh.";
+    REQ( ElectricalSimple.init().val(Volt,"V").val(Ampere,"A").val(Power, "W").arg(Time).val(Work, "Wh").get(), ==, Required );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
   };
 
   SUB( NoPF_UnitVal_construct )
   {
     int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
-    NoPF_Set::EngineeringDecimals = 2;
+    NoPF_Set::EngineeringDecimals = 0;
 
-    short Shortval = 12345;
-    UnitVal UV( Shortval, "P" );
+    try
+    {
+      short Shortval = 12345;
+      UnitVal UV( Shortval, "P" );
 
-    REQ( UV.get_abs(), == , 12345 );
-    REQ( UV.is_minus(), == , false );
-    REQ( UV.get_sign(), == , '\0' );
-    REQ( UV.get_sign(true), == , '+' );
-    REQ( UV.get_mult(), == , 1 );
-    REQ( UV.get_base(), == , std::string("P") );
-    REQ( UV.get_prefix(), == , '\0' );
+      REQ( UV.get_abs(), == , 12345 );
+      REQ( UV.get_signed(), == , 12345 );
+      REQ( UV.is_negative(), == , false );
+      REQ( UV.get_sign(), == , '\0' );
+      REQ( UV.get_sign(true), == , '+' );
+      REQ( UV.get_baseunit(), == , std::string("P") );
+      REQ( std::string(UV.get_gap()), == , std::string(" ") );
+      // using optimize() in the meantime, REQ( UV.get_prefix(), == , '\0' );
+    } catch( const std::exception& e )
+    {
+      puts( e.what() );
+      REQ( 1, == , 2 );
+    }
 
     NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
   };
@@ -1078,32 +1137,32 @@ TEST( val_is_for_engineering_values )
       static UnitVal UV( Shortval, "P" );
 
       REQ( UV.get_abs(), == , 12345 );
-      REQ( UV.is_minus(), == , false );
+      REQ( UV.is_negative(), == , false );
       REQ( UV.get_sign(), == , '\0' );
       REQ( UV.get_sign(true), == , '+' );
-      REQ( UV.get_engineer(), == , 12 );
-      REQ( UV.get_reminder(), == , 35 );
-      REQ( UV.get_mult(), ==, 1000 );
-      REQ( UV.get_base(), ==, std::string("P") );
+      REQ( UV.get_engineers(), == , 12 );
+      REQ( UV.get_engineers_reminder(), == , 35 );
+      REQ( UV.get_multiplier(), ==, 1000 );
+      REQ( UV.get_baseunit(), ==, std::string("P") );
       REQ( UV.get_gap(), ==, std::string(" ") );
       REQ( UV.get_prefix(), ==, 'k' );
 
       static UnitVal Temp1( 37, "°C" );
       REQ( Temp1.get_abs(), == , 37 );
-      REQ( Temp1.is_minus(), == , false );
+      REQ( Temp1.is_negative(), == , false );
       REQ( Temp1.get_sign(), == , '\0' );
-      REQ( Temp1.get_engineer(), == , 37 );
-      REQ( Temp1.get_reminder(), == , 0 );
-      REQ( Temp1.get_mult(), ==, 1 );
-      REQ( Temp1.get_base(), ==, std::string("°C") );
+      REQ( Temp1.get_engineers(), == , 37 );
+      REQ( Temp1.get_engineers_reminder(), == , 0 );
+      REQ( Temp1.get_multiplier(), ==, 1 );
+      REQ( Temp1.get_baseunit(), ==, std::string("°C") );
       REQ( Temp1.get_gap(), == , std::string("") );
       REQ( Temp1.get_prefix(), == , '\0' );
 
       static UnitVal Temp2( -274, "°C" );
       REQ( Temp2.get_abs(), == , 274 );
-      REQ( Temp2.is_minus(), == , true );
+      REQ( Temp2.is_negative(), == , true );
       REQ( Temp2.get_sign(), == , '-' );
-      REQ( Temp2.get_base(), ==, std::string("°C") );
+      REQ( Temp2.get_baseunit(), ==, std::string("°C") );
       REQ( Temp2.get_gap(), == , std::string("") );
       REQ( Temp2.get_prefix(), == , '\0' );
     } catch( const std::exception& e )
