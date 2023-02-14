@@ -228,10 +228,9 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
     bLeftAlign = true;
     width *= -1;
   }
-  int filling = width;
-  char FillChar = (bRightAlign) ? NoPF_Set::FillCharAlignRight : NoPF_Set::FillCharAlignLeft;
-  if( '\0' != override_fill )
-    FillChar = override_fill;
+  int  filling = width;
+  char FillChar = ( bRightAlign ) ? NoPF_Set::FillCharAlignRight : NoPF_Set::FillCharAlignLeft;
+  if( '\0' != override_fill ) FillChar = override_fill;
 
   if( 0 == uVal && 0 == width ) // emulate printf("%.0ld"),uVal)
   {

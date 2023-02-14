@@ -49,7 +49,7 @@ class UnitVal
 public:
   UnitVal() = delete;
   UnitVal( BiggestNumerical_t RawValue, const std::string& BaseUnit = std::string( "" ) )
-      : m_optimized( RawValue<1000 )
+      : m_optimized( RawValue < 1000 )
       , m_isBaseUnit( true )
       , m_isMinus( false )
       , m_value( RawValue )
@@ -77,49 +77,73 @@ public:
     return ( m_baseunit.length() && NoPF_Set::FillCharScience && ( 0 != m_baseunit.find( std::string( "\u00b0" ) ) ) ) ? " "
                                                                                                                        : "";
   };
-  std::string get_gapstr() { const char c = *get_gap(); if('0'==c) return std::string(""); else return std::string(1,c); };
+  std::string get_gapstr()
+  {
+    const char c = *get_gap();
+    if( '0' == c )
+      return std::string( "" );
+    else
+      return std::string( 1, c );
+  };
   BiggestNumerical_t get_abs() const { return m_value; };
   BiggestSigned_t    get_signed() const // can throw!
   {
-    if( m_value > NoPF_MaxSignedVal )
-      throw std::runtime_error( "BiggestSigned_t" );
-    return static_cast<BiggestSigned_t>(m_value);
+    if( m_value > NoPF_MaxSignedVal ) throw std::runtime_error( "BiggestSigned_t" );
+    return static_cast<BiggestSigned_t>( m_value );
   };
 
-  char get_prefix() { if(!m_optimized) optimize(); return *m_pPrefixSelector; };
+  char get_prefix()
+  {
+    if( !m_optimized ) optimize();
+    return *m_pPrefixSelector;
+  };
   std::string get_prefixstr()
   {
     char c = get_prefix();
-    if('\0'==c) return std::string("");
-    else return std::string(1,c);
+    if( '\0' == c )
+      return std::string( "" );
+    else
+      return std::string( 1, c );
   };
-  BiggestNumerical_t get_multiplier() { if(!m_optimized) optimize(); return m_multiply; };
-
-  short get_engineers() { if(!m_optimized) optimize(); return static_cast<short>(m_value / (m_multiply * (m_isMinus?-1:1))); };
-
-  std::string get_engineers_unit() { if(!m_optimized) {optimize();}; return get_gapstr() + get_prefixstr() + get_baseunit(); };
-
-  BiggestNumerical_t get_engineers_reminder(int digits=2)
+  BiggestNumerical_t get_multiplier()
   {
-    if(!m_optimized) optimize();
+    if( !m_optimized ) optimize();
+    return m_multiply;
+  };
+
+  short get_engineers()
+  {
+    if( !m_optimized ) optimize();
+    return static_cast<short>( m_value / ( m_multiply * ( m_isMinus ? -1 : 1 ) ) );
+  };
+
+  std::string get_engineers_unit()
+  {
+    if( !m_optimized ) { optimize(); };
+    return get_gapstr() + get_prefixstr() + get_baseunit();
+  };
+
+  BiggestNumerical_t get_engineers_reminder( int digits = 2 )
+  {
+    if( !m_optimized ) optimize();
     BiggestNumerical_t reminder = m_value % m_multiply;
     // trim to digits
     BiggestNumerical_t limit = pow( 10, digits ) - 1;
-    while(reminder/10 > limit)
-      reminder/=10;
-    reminder+=5;
-    reminder/=10;
+    while( reminder / 10 > limit )
+      reminder /= 10;
+    reminder += 5;
+    reminder /= 10;
     return reminder;
   };
 
 private:
   void optimize() // changes prefix and multiplier
   {
-    m_pPrefixSelector = m_prefix + sizeof( NOPF_PREFIX_ARRAY )/2;
+    m_pPrefixSelector = m_prefix + sizeof( NOPF_PREFIX_ARRAY ) / 2;
     assert( *m_pPrefixSelector == '\0' );
 
     // unix prefix and value aligning between 0.01 and 999.99 ...
-    while( (m_value / m_multiply) >= 1000 )
+    while( ( m_value / m_multiply ) >= 1000 )
     {
       m_multiply *= 1000;
       m_pPrefixSelector++;
@@ -188,8 +212,7 @@ public: // further public methods
       // number type room, but the result will only fit in unsigned same number type room.
       // so we do a (x - 1 + 1) operation to trick the C++ type system, trusting the compiler to not
       // really doing this operation...
-      return this->arg(
-          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
     }
     else
       return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
@@ -237,20 +260,18 @@ public: // further public methods
   NoPrintf& val( const T& val, const std::string& Unit = std::string( "" ), int decimals = NoPF_Set::EngineeringDecimals )
   {
     // unix prefix and value aligning between 0.01 and 999.99 ...
-    UnitVal Engineers( val, Unit );
+    UnitVal     Engineers( val, Unit );
     std::string WholeNum, DecimalNum;
     collect_number( Engineers.get_engineers(), WholeNum, Engineers.is_negative(), INT_MIN );
-    if( 0==decimals )
-    {
-      return this->arg( WholeNum + Engineers.get_engineers_unit() );
-    }
-    collect_number( Engineers.get_engineers_reminder(decimals), DecimalNum, false, 0-decimals, '0' );
+    if( 0 == decimals ) { return this->arg( WholeNum + Engineers.get_engineers_unit() ); }
+    collect_number( Engineers.get_engineers_reminder( decimals ), DecimalNum, false, 0 - decimals, '0' );
     return this->arg( WholeNum + "." + DecimalNum + Engineers.get_engineers_unit() );
   }
 
 
 private:
-  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int width = INT_MIN, char override_fill = '\0' );
+  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int width = INT_MIN,
+                               char override_fill = '\0' );
 
 private:
   std::string              m_str;
