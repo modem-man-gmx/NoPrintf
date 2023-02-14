@@ -41,12 +41,20 @@
     defined( ULLONG_MAX ) && defined( __UINT64_MAX__ ) && (ULLONG_MAX >= __UINT64_MAX__)
   // both defined: decide the bigger one
   typedef unsigned long long BiggestNumerical_t;
+  typedef signed long long BiggestSigned_t;
+  static const size_t NoPF_MaxSignedVal( __LONG_LONG_MAX__ );
 #elif defined( NOPF_USE_LONGLONG ) && (NOPF_USE_LONGLONG>0)
   typedef unsigned long long BiggestNumerical_t;
+  typedef signed long long BiggestSigned_t;
+  static const size_t NoPF_MaxSignedVal( __LONG_LONG_MAX__ );
 #elif defined( NOPF_USE_INT64 ) && (NOPF_USE_INT64>0)
   typedef uint64_t BiggestNumerical_t;
+  typedef int64_t BiggestSigned_t;
+  static const size_t NoPF_MaxSignedVal( __INT64_MAX__ );
 #else
   typedef unsigned long BiggestNumerical_t;
+  typedef signed long BiggestSigned_t;
+  static const size_t NoPF_MaxSignedVal( __LONG_MAX__ );
 #endif
 
 // =============================================

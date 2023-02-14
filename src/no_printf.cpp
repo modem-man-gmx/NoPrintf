@@ -85,7 +85,7 @@ NoPrintf& NoPrintf::operator=( NoPrintf const& other ) // copy assignment
 // ----------- impl ---------------
 
 
-void NoPrintf::init()
+NoPrintf& NoPrintf::init()
 {
   m_args.reserve( 1 + 1 + 9 );
   m_args.clear();
@@ -93,13 +93,15 @@ void NoPrintf::init()
   m_args.emplace( m_args.end(), std::move( std::string( "<invalid>" ) ) ); // for non-existing $x indices
   // single '$' sign at offset 1 for '$$'
   m_args.emplace( m_args.end(), std::move( std::string( "$" ) ) ); // single '$' sign at offset 0 for '$$'
+  return *this;
 }
 
 
-void NoPrintf::clean()
+NoPrintf& NoPrintf::clean()
 {
   init();
   m_str.clear();
+  return *this;
 }
 
 
@@ -217,7 +219,7 @@ NoPrintf& NoPrintf::operator+=( const char* rhs )
 // width: positive value    : use right align and prefill with 0000. Same as if(Minus) {printf("-");} printf("%.7lu"),uVal);
 // width: negative value    : use left  align and postfill with ' '. Same as if(Minus) {printf("-");} printf("%-7lu"),uVal);
 // width: 0                 : just suppress value 0. Same as                 if(Minus) {printf("-");} printf("%.0lu"),uVal);
-std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus, int decimals, int width )
+std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus, int width, char override_fill )
 {
   bool bRightAlign = ( width > 0 ) ? true : false;
   bool bLeftAlign = false;
@@ -227,6 +229,9 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
     width *= -1;
   }
   int filling = width;
+  char FillChar = (bRightAlign) ? NoPF_Set::FillCharAlignRight : NoPF_Set::FillCharAlignLeft;
+  if( '\0' != override_fill )
+    FillChar = override_fill;
 
   if( 0 == uVal && 0 == width ) // emulate printf("%.0ld"),uVal)
   {
@@ -250,14 +255,14 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
     if( Minus ) { filling--; }
     // with space-like '   ' padding, the minus is directly connected to the digits. "1st padding, then minus, then digits"
     // or reverse build like here:  "1st digits, then minus, then padding -> then reversed"
-    if( NoPF_Set::FillCharAlignRight != '0' && NoPF_Set::FillCharAlignRight != '\0' )
+    if( FillChar != '0' && FillChar != '\0' )
     {
       if( Minus ) { buffer.push_back( '-' ); }
     } // endif( NoPF_Set::FillCharAlignRight != '0' && NoPF_Set::FillCharAlignRight != '\0' )
 
-    if( bRightAlign && filling > 0 ) { buffer.append( filling, NoPF_Set::FillCharAlignRight ); }
+    if( bRightAlign && filling > 0 ) { buffer.append( filling, FillChar ); }
 
-    if( NoPF_Set::FillCharAlignRight == '0' )
+    if( FillChar == '0' )
     {
       // with numerical '0000' padding, the 0000 is directly connected to the digits. "1st minus, then 0 padding, then digits"
       // or reverse build like here:  "1st digits, then 0 padding, then minus -> then reversed"
@@ -266,7 +271,7 @@ std::string& NoPrintf::collect_number( BiggestNumerical_t uVal, std::string& buf
   }
   std::reverse( buffer.begin(), buffer.end() );
 
-  if( bLeftAlign && filling > 0 ) { buffer.append( filling, NoPF_Set::FillCharAlignLeft ); }
+  if( bLeftAlign && filling > 0 ) { buffer.append( filling, FillChar ); }
 
   return buffer;
 }

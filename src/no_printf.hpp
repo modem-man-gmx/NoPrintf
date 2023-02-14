@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <climits>
+#include <cmath> // pow
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -29,12 +30,27 @@ struct NoPF_Set // static Settings
 // international scientific 10^(3*n) prefixes with -10 <= n <= 10 (wich can't be used all on usual C++ integrated types)
 #define NOPF_PREFIX_ARRAY "qryzafpnµm\0kMGTPEZYRQ"
 
+/*
+struct unsigned_PhysicalQuantity
+{
+  BiggestNumerical_t val;
+  std::string unit;
+}
+
+struct signed_PhysicalQuantity
+{
+  BiggestSigned_t val;
+  std::string unit;
+}
+*/
+
 class UnitVal
 {
 public:
   UnitVal() = delete;
   UnitVal( BiggestNumerical_t RawValue, const std::string& BaseUnit = std::string( "" ) )
-      : m_isBaseUnit( true )
+      : m_optimized( RawValue<1000 )
+      , m_isBaseUnit( true )
       , m_isMinus( false )
       , m_value( RawValue )
       , m_multiply( 1 ) // not a denominator! it is 1000 for "k", 1000000 for "G", ...
@@ -52,41 +68,70 @@ public:
 
   ~UnitVal() = default;
 
-  BiggestNumerical_t get_abs() const { return m_value; };
-  BiggestNumerical_t get_mult() const { return m_multiply; };
-  bool               is_minus() const { return m_isMinus; };
-  const std::string& get_base() const { return m_baseunit; };
+  const std::string& get_baseunit() const { return m_baseunit; };
+
+  bool is_negative() const { return m_isMinus; };
   char get_sign( bool plus_on_positive = false ) const { return ( m_isMinus ) ? '-' : ( plus_on_positive ) ? '+' : '\0'; };
-  char get_prefix() const
-  {
-    if( m_isBaseUnit )
-      return *m_pPrefixSelector;
-    else
-      throw std::runtime_error( "code to come!" );
-  };
-
-  BiggestNumerical_t get_engineer()
-  {
-    if( m_isBaseUnit )
-      return m_value;
-    else
-      throw std::runtime_error( "code to come!" );
-  };
-
-  BiggestNumerical_t get_reminder()
-  {
-    if( m_isBaseUnit )
-      return 0;
-    else
-      throw std::runtime_error( "code to come!" );
-  };
   const char* get_gap() const
   {
     return ( m_baseunit.length() && NoPF_Set::FillCharScience && ( 0 != m_baseunit.find( std::string( "\u00b0" ) ) ) ) ? " "
                                                                                                                        : "";
   };
+  std::string get_gapstr() { const char c = *get_gap(); if('0'==c) return std::string(""); else return std::string(1,c); };
+  BiggestNumerical_t get_abs() const { return m_value; };
+  BiggestSigned_t    get_signed() const // can throw!
+  {
+    if( m_value > NoPF_MaxSignedVal )
+      throw std::runtime_error( "BiggestSigned_t" );
+    return static_cast<BiggestSigned_t>(m_value);
+  };
+
+  char get_prefix() { if(!m_optimized) optimize(); return *m_pPrefixSelector; };
+  std::string get_prefixstr()
+  {
+    char c = get_prefix();
+    if('\0'==c) return std::string("");
+    else return std::string(1,c);
+  };
+  BiggestNumerical_t get_multiplier() { if(!m_optimized) optimize(); return m_multiply; };
+
+  short get_engineers() { if(!m_optimized) optimize(); return static_cast<short>(m_value / (m_multiply * (m_isMinus?-1:1))); };
+
+  std::string get_engineers_unit() { if(!m_optimized) {optimize();}; return get_gapstr() + get_prefixstr() + get_baseunit(); };
+
+  BiggestNumerical_t get_engineers_reminder(int digits=2)
+  {
+    if(!m_optimized) optimize();
+    BiggestNumerical_t reminder = m_value % m_multiply;
+    // trim to digits
+    BiggestNumerical_t limit = pow( 10, digits ) - 1;
+    while(reminder/10 > limit)
+      reminder/=10;
+    reminder+=5;
+    reminder/=10;
+    return reminder;
+  };
 
 private:
+  void optimize() // changes prefix and multiplier
+  {
+    m_pPrefixSelector = m_prefix + sizeof( NOPF_PREFIX_ARRAY )/2;
+    assert( *m_pPrefixSelector == '\0' );
+
+    // unix prefix and value aligning between 0.01 and 999.99 ...
+    while( (m_value / m_multiply) >= 1000 )
+    {
+      m_multiply *= 1000;
+      m_pPrefixSelector++;
+      assert( m_pPrefixSelector >= m_prefix );
+      assert( m_pPrefixSelector < m_prefix + sizeof( NOPF_PREFIX_ARRAY ) );
+    }
+    m_optimized = true;
+    return;
+  };
+
+private:
+  bool               m_optimized;
   bool               m_isBaseUnit;
   bool               m_isMinus;
   BiggestNumerical_t m_value;
@@ -121,8 +166,8 @@ public:                                           // operators
   NoPrintf&   operator+=( const char* rhs );
 
 public: // further public methods
-  void init();
-  void clean();
+  NoPrintf& init();
+  NoPrintf& clean();
   //void trim();
   //void cut(siz_t max);
 
@@ -136,7 +181,6 @@ public: // further public methods
   template<typename T>
   NoPrintf& arg( const T& val, int width = INT_MIN )
   {
-    const int   decimals( 0 ); // no decimals for integral integer types
     std::string collect;
     if( val < 0 )
     {
@@ -145,10 +189,10 @@ public: // further public methods
       // so we do a (x - 1 + 1) operation to trick the C++ type system, trusting the compiler to not
       // really doing this operation...
       return this->arg(
-          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, decimals, width ) );
+          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, width ) );
     }
     else
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, decimals, width ) );
+      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, width ) );
   }
 
   NoPrintf& raw( const std::string& str, int width = 0, char fillchr = ' ' )
@@ -180,7 +224,7 @@ public: // further public methods
   NoPrintf& arg( unsigned long int uVal, int width = INT_MIN )
   {
     std::string collect;
-    return this->arg( collect_number( uVal, collect, false, 0, width ) );
+    return this->arg( collect_number( uVal, collect, false, width ) );
   };
 
   template<typename T>
@@ -192,60 +236,26 @@ public: // further public methods
   template<typename T>
   NoPrintf& val( const T& val, const std::string& Unit = std::string( "" ), int decimals = NoPF_Set::EngineeringDecimals )
   {
-    std::string degree_sign( "\u00b0" );
-    std::string collect, phys_unit;
-    // all units but "°C" (or empties) must have a space after the number (if scientifically correct notation is true)
-    if( NoPF_Set::FillCharScience && Unit.length() && 0 != Unit.find( degree_sign ) ) phys_unit += " ";
-    phys_unit += Unit;
-
-    // unix prefix and value aligning between 0.01 and 999.99 to come ...
-
-    if( val < 0 )
-      return this->arg(
-          collect_number( static_cast<BiggestNumerical_t>( ( val + 1 ) * -1 ) + 1, collect, true, decimals, INT_MIN ) +
-          phys_unit );
-    else
-      return this->arg( collect_number( static_cast<BiggestNumerical_t>( val ), collect, false, decimals, INT_MIN ) +
-                        phys_unit );
+    // unix prefix and value aligning between 0.01 and 999.99 ...
+    UnitVal Engineers( val, Unit );
+    std::string WholeNum, DecimalNum;
+    collect_number( Engineers.get_engineers(), WholeNum, Engineers.is_negative(), INT_MIN );
+    if( 0==decimals )
+    {
+      return this->arg( WholeNum + Engineers.get_engineers_unit() );
+    }
+    collect_number( Engineers.get_engineers_reminder(decimals), DecimalNum, false, 0-decimals, '0' );
+    return this->arg( WholeNum + "." + DecimalNum + Engineers.get_engineers_unit() );
   }
 
 
 private:
-  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int decimals = 0,
-                               int width = INT_MIN );
+  std::string& collect_number( BiggestNumerical_t uVal, std::string& buffer, bool Minus = false, int width = INT_MIN, char override_fill = '\0' );
 
 private:
   std::string              m_str;
   std::vector<std::string> m_args;
 };
-
-#if 0
-template<typename valT>
-UnitVal<valT> NoPF_Unit::engval( valT val, const std::string& BaseUnit )
-{
-  const std::string degree_sign( "\u00b0" ); // todo to class
-  const std::string ScienceGap( (BaseUnit.length() && NoPF_Set::FillCharScience && (0 != BaseUnit.find( degree_sign ))) ? " ": "" );
-
-  UnitVal<valT> Result( val, BaseUnit );
-  char const *pPrefix = NoPF_Unit::Prefix + strlen(NoPF_Unit::Prefix)/2;
-  assert( *pPrefix == ' ' );
-#  error
-  const int make_abs( (val<0) ? -1 : 1 );
-
-  // unix prefix and value aligning between 0.01 and 999.99 ...
-  while( ((make_abs * Result.Value) / Result.Divided) >= 1000 )
-  {
-    Result.Divided *= 1000;
-    pPrefix++;
-    assert( pPrefix >= Prefix );
-    assert( pPrefix < Prefix + strlen(Prefix) );
-  }
-  std::string UnitPrefix( std::string( 1, ((*pPrefix==' ') ? '\0' : *pPrefix) ) );
-  Result.Unit = ScienceGap + UnitPrefix + Result.Unit;
-  Result.isBaseUnit = (1==Result.Divided);
-  return Result;
-}
-#endif
 
 //} // namespace
 
