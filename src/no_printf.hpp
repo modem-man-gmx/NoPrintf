@@ -117,6 +117,12 @@ public:
     return static_cast<short>( m_value / ( m_multiply * ( m_isMinus ? -1 : 1 ) ) );
   };
 
+  short get_engineers_abs()
+  {
+    if( !m_optimized ) optimize();
+    return static_cast<short>( m_value / m_multiply );
+  };
+
   std::string get_engineers_unit()
   {
     if( !m_optimized ) { optimize(); };
@@ -262,7 +268,7 @@ public: // further public methods
     // unix prefix and value aligning between 0.01 and 999.99 ...
     UnitVal     Engineers( val, Unit );
     std::string WholeNum, DecimalNum;
-    collect_number( Engineers.get_engineers(), WholeNum, Engineers.is_negative(), INT_MIN );
+    collect_number( Engineers.get_engineers_abs(), WholeNum, Engineers.is_negative(), INT_MIN );
     if( 0 == decimals ) { return this->arg( WholeNum + Engineers.get_engineers_unit() ); }
     collect_number( Engineers.get_engineers_reminder( decimals ), DecimalNum, false, 0 - decimals, '0' );
     return this->arg( WholeNum + "." + DecimalNum + Engineers.get_engineers_unit() );

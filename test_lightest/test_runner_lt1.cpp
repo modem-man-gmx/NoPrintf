@@ -1188,11 +1188,17 @@ TEST( val_is_for_engineering_values )
     {
       if( Day%28 ) Power*=10;
       MUST( Power <= static_cast<long long>(__FLT_MAX__) );
-      float fPower = float(Power);
+      long double fPower = float(Power);
       Hours += ((Day%5)-2);
       Work = Power * Hours;
-      MUST( Work <= static_cast<long long>(__DBL_MAX__) );
-      double fWork = double(Work);
+
+      if( (Power != 0) && ( Work / Power != Hours )) // number too large for representation in integer
+      {
+        break;
+      }
+
+      MUST( Work / Power == Hours );
+      long double fWork = static_cast<long double>(Work);
 
       Required.str( std::string() );
       NoPrintf ElectricalSimple;
