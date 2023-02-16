@@ -111,6 +111,20 @@ TEST( Handling_Check )
     Required[ DIM( Required ) - 1 ] = '\0';
     REQ( NoPrintf( "A) Sml_a=$1, Big_g=$2." ).arg( a ).arg( b ).get(), ==, std::string( Required ) );
   };
+
+  SUB( Engineering_with_dot_zerozeroone )
+  {
+    int EngineeringDecimals_old = NoPF_Set::EngineeringDecimals;
+    NoPF_Set::EngineeringDecimals = 3;
+
+    char Required[ 128 ];
+    long j=1001, k=999060;
+    snprintf( Required, DIM( Required ), "A) Sml_a=%3.3f kJ, Big_g=%3.3f kcal.", static_cast<float>(j)/1000, static_cast<float>(k)/1000 );
+    Required[ DIM( Required ) - 1 ] = '\0';
+    REQ( NoPrintf( "A) Sml_a=$1, Big_g=$2." ).val( j, "J" ).val( k, "cal" ).get(), ==, std::string( Required ) );
+
+    NoPF_Set::EngineeringDecimals = EngineeringDecimals_old;
+  };
 }
 
 TEST( Default_NoPrintf_handling )
